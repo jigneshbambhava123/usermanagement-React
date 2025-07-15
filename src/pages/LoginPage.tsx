@@ -23,7 +23,6 @@ const LoginSchema = Yup.object().shape({
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const initialValues: ILoginRequest = {
@@ -34,31 +33,26 @@ const LoginPage = () => {
 
   const handleLogin = async (
     values: ILoginRequest,
-    { setSubmitting, resetForm }: FormikHelpers<ILoginRequest>
+    { setSubmitting }: FormikHelpers<ILoginRequest>
   ) => {
-    setServerError(null);
     try {
       const response = await loginUser(values);
       const { token } = response.data;
 
-      localStorage.setItem("jwt_token", token);
-      localStorage.setItem("login_success", "true");
+      const storage = values.rememberMe ? localStorage : sessionStorage;
+      storage.setItem("jwt_token", token);
+
       navigate("/users");
     } catch (err: any) {
       const errorMessage =
-        err.response?.data?.message || "Login failed. Please check your credentials.";
-      setServerError(errorMessage);
-
-      // 🔥 Show toast on error
+        err?.response?.data?.message || err?.message || "Login failed. Please check your credentials.";
       toast.error(errorMessage);
-
     } finally {
       setSubmitting(false);
     }
   };
-
   const handleForgotPassword = () => {
-    navigate("/forgot-password");
+    navigate("/forgotpassword");
   };
 
   return (
@@ -166,45 +160,14 @@ const LoginPage = () => {
                 className="w-full  bg-blue-600 text-white py-3 rounded-lg font-semibold text-[18px] hover:bg-blue-700 transition duration-200 disabled:opacity-60"
               >
                 Sign in
-                <i className="bi bi-chevron-right ms-2 text-[18px]"></i>
               </button>
             </Form>
           )}
         </Formik>
-
-        {/* Divider */}
-        <div className="flex items-center my-4">
-          <div className="flex-grow h-px bg-gray-300" />
-          <span className="mx-4 text-gray-500">OR</span>
-          <div className="flex-grow h-px bg-gray-300" />
-        </div>
-
-        {/* OAuth Buttons */}
-        <div className="flex gap-4">
-          <button
-            type="button"
-            // onClick={() => handleOAuthLogin("google")}
-            className="flex-1 flex items-center justify-center gap-2 border border-gray-300 rounded-md px-4 py-2 text-lg text-[#212529] hover:bg-gray-100 hover:shadow-md transition duration-200"
-          >
-            <span className="flex items-center gap-2 text-[18px]">
-              {/* <GoogleIcon /> */}Google 
-            </span>
-          </button>
-          <button
-            type="button"
-            // onClick={() => handleOAuthLogin("microsoft")}
-            className="flex-1 flex items-center justify-center gap-2 border border-gray-300 rounded-md px-4 py-2 text-lg text-[#323a42] hover:bg-gray-100 hover:shadow-md transition duration-200"
-          >
-            <span className="flex items-center gap-2 text-[18px]">
-              {/* <MicrosoftIcon />*/} Microsoft 
-            </span>
-          </button>
-        </div>
       </div>
     </div>
   </div>
 );
-
 };
 
 export default LoginPage;

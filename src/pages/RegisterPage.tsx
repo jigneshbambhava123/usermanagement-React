@@ -22,16 +22,16 @@ interface RegisterFormValues {
 
 const RegisterSchema = Yup.object().shape({
   firstname: Yup.string()
-    .min(3, "First name must be at least 3 characters long.")
-    .max(20, "First name must be at most 20 characters long.")
+    .min(2, "First name must be at least 2 characters long.")
+    .max(50, "First name must be at most 50 characters long.")
     .matches(
       /^[a-zA-Z0-9_]+$/,
       "First name can only contain letters, numbers and underscore"
     )
     .required("First name is required"),
   lastname: Yup.string()
-    .min(3, "Last name must be at least 3 characters long.")
-    .max(20, "Last name must be at most 20 characters long.")
+    .min(2, "Last name must be at least 2 characters long.")
+    .max(50, "Last name must be at most 50 characters long.")
     .matches(
       /^[a-zA-Z0-9_]+$/,
       "Last name can only contain letters, numbers and underscore"
@@ -43,7 +43,7 @@ const RegisterSchema = Yup.object().shape({
     .required("Phone number is required"),
   dateofbirth: Yup.date().required("Date of birth is required"),
   password: Yup.string()
-    .min(8, "Minimum 8 characters")
+    .min(8, "Password must be at least 8 characters")
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
       "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
@@ -77,7 +77,7 @@ const RegisterPage = () => {
     try {
       const payload = {
         ...values,
-        roleId: 2, // default user role
+        roleId: 2,
         isActive: true,
       };
       await registerUser(payload);
@@ -121,7 +121,7 @@ const RegisterPage = () => {
             <p className="text-gray-600">
                 Already have an account?{" "}
                 <Link to="/" className="text-blue-600 hover:underline">
-                Log in
+                Sign in
                 </Link>
             </p>
         </div>
@@ -220,7 +220,7 @@ const RegisterPage = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className={`absolute right-3 ${
-                    errors.password && touched.password ? "top-1/3" : "top-1/2"
+                    errors.password && touched.password ? "top-8/25" : "top-1/2"
                     } transform -translate-y-1/2 text-gray-500 hover:scale-110 transition-transform text-xl`} 
                 >
                   {showPassword ? "🙈" : "👁️"}
