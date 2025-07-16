@@ -1,5 +1,3 @@
-// src/pages/RegisterPage.tsx
-
 import { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import type {FormikHelpers} from "formik";

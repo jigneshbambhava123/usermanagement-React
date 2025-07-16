@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl, InputLabel, Select, MenuItem, Box,
+  Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -111,7 +111,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
       aria-labelledby="form-dialog-title"
       maxWidth="sm"
       fullWidth
-      PaperProps={{ sx: { maxWidth: 600 } }} // Increase modal width
+      PaperProps={{ sx: { maxWidth: 600 } }} 
     >
       <DialogTitle id="form-dialog-title">{isEditMode ? 'Edit User' : 'Add New User'}</DialogTitle>
       <DialogContent>
@@ -255,7 +255,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
 
                 {/* Date of Birth - only if add mode */}
                 {!isEditMode && (
-                  <div>
+                  <div className="mt-4">
                     <Field
                       type="date"
                       name="dateofbirth"

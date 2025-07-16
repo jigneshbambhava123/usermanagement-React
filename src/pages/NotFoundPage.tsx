@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 const NotFound = () => {
@@ -17,10 +16,10 @@ const NotFound = () => {
           </div>
           <div className="space-y-4 md:space-y-0 md:space-x-4">
             <Link
-              to="/"
+              to="/users"
               className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
-              Go to Homepage
+              Go to Userpage
             </Link>
           </div>
         </div>

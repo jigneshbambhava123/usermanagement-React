@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, TablePagination, IconButton, Typography, Box, TableSortLabel, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions // Import Dialog components for ConfirmDialog
+  Dialog, DialogTitle, DialogContent, DialogActions 
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -12,9 +12,9 @@ import type { User } from '../api/userApi';
 import { getUserRoles } from '../helpers/authHelpers';
 import { toast } from "react-toastify";
 import { debounce } from 'lodash';
-import UserFormDialog from '../components/UserFormDialog'; // Import the new dialog component
+import PersonIcon from '@mui/icons-material/Person';
+import UserFormDialog from '../components/UserFormDialog'; 
 
-// Define types for form data, consistent with UserFormDialog
 type AddUserFormData = Omit<User, 'id' | 'isActive'>;
 type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
 
@@ -37,7 +37,6 @@ const calculateAge = (dob: string): number => {
   return age;
 };
 
-// New ConfirmDialog component (can be moved to its own file if preferred)
 interface ConfirmDialogProps {
   open: boolean;
   onClose: () => void;
@@ -72,7 +71,6 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, onClose, onConfirm,
   );
 };
 
-
 const UserListPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -87,7 +85,6 @@ const UserListPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null); // For editing
 
-  // State for delete confirmation dialog
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [userToDeleteId, setUserToDeleteId] = useState<number | null>(null);
 
@@ -175,7 +172,7 @@ const UserListPage: React.FC = () => {
   };
 
   const handleAddUser = () => {
-    setCurrentUser(null); // Clear any existing user data
+    setCurrentUser(null); 
     setIsFormOpen(true);
   };
 
@@ -196,12 +193,12 @@ const UserListPage: React.FC = () => {
       try {
         await deleteUser(userToDeleteId);
         toast.success("User deleted successfully!");
-        fetchUsers(); // Re-fetch users to update the list
+        fetchUsers(); 
       } catch (error) {
         toast.error("Failed to delete user.");
       } finally {
-        setIsConfirmDialogOpen(false); // Close dialog
-        setUserToDeleteId(null); // Clear ID
+        setIsConfirmDialogOpen(false); 
+        setUserToDeleteId(null); 
       }
     }
   };
@@ -236,7 +233,16 @@ const UserListPage: React.FC = () => {
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 2 }}>
-          <Typography variant="h6">User</Typography>
+          <Typography variant="h5" sx={{ 
+            fontWeight: 600,
+            color: '#1976d2',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1
+          }}>
+            <PersonIcon />
+            User 
+          </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <input
               type="text"
