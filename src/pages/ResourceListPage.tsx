@@ -243,37 +243,67 @@ const ResourceListPage: React.FC = () => {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2 }}>
-          <Typography variant="h5" sx={{ 
-            fontWeight: 600,
-            color: '#1976d2',
+        <Box
+          sx={{
             display: 'flex',
-            alignItems: 'center',
-            gap: 1
-          }}>
-            
-            Resource Management 
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            p: 2,
+            gap: 2,
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 600,
+              color: '#1976d2',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+            }}
+          >
+            Resource Management
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { sm: 'center' },
+              gap: 2,
+              width: { xs: '100%', sm: 'auto' },
+            }}
+          >
             <input
               type="text"
               placeholder="Search resource..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '200px' }}
-            />
-            {isAdmin && (
-              <Button variant="contained" startIcon={<AddIcon />} 
-              onClick={handleAddResource}
-               style={{
-                height: '42px'
+              style={{
+                padding: '8px',
+                borderRadius: '4px',
+                border: '1px solid #ccc',
+                width: '100%',
               }}
+            />
+
+            {isAdmin && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleAddResource}
+                sx={{
+                  height: '42px',
+                  width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'170px'
+                }}
               >
-                Add Resource 
+                Add Resource
               </Button>
             )}
           </Box>
         </Box>
+
         <TableContainer>
           <Table stickyHeader>
             <TableHead>
@@ -353,7 +383,7 @@ const ResourceListPage: React.FC = () => {
                     </TableCell>
                     <TableCell>{resource.usedQuantity}</TableCell>
                     {isAdmin && (
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }}>
                         <IconButton onClick={() => handleEditResource(resource)} color="primary" >
                           <EditIcon />
                         </IconButton>

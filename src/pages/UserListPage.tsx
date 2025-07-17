@@ -181,13 +181,11 @@ const UserListPage: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  // Open the confirmation dialog for delete
   const handleDeleteClick = (userId: number) => {
     setUserToDeleteId(userId);
     setIsConfirmDialogOpen(true);
   };
 
-  // Handle the actual delete after confirmation
   const handleConfirmDelete = async () => {
     if (userToDeleteId !== null) {
       try {
@@ -212,8 +210,8 @@ const UserListPage: React.FC = () => {
         await createUser(userData as AddUserFormData);
         toast.success("User added successfully!");
       }
-      setIsFormOpen(false); // Close the form
-      fetchUsers(); // Re-fetch users to update the list
+      setIsFormOpen(false); 
+      fetchUsers();
     } catch (error) {
       toast.error(`Failed to ${'id' in userData ? 'update' : 'add'} user.`);
       console.error('Form submission error:', error);
@@ -232,18 +230,38 @@ const UserListPage: React.FC = () => {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 2 }}>
-          <Typography variant="h5" sx={{ 
-            fontWeight: 600,
-            color: '#1976d2',
+        <Box
+          sx={{
             display: 'flex',
-            alignItems: 'center',
-            gap: 1
-          }}>
-            <PersonIcon />
-            User 
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'stretch', sm: 'center' },
+            padding: 2,
+            gap: 2
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 600,
+              color: '#1976d2',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            User
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { sm: 'center' },
+              gap: 2,
+              width: { xs: '100%', sm: 'auto' }
+            }}
+          >
             <input
               type="text"
               placeholder="Search user..."
@@ -253,7 +271,7 @@ const UserListPage: React.FC = () => {
                 padding: '8px',
                 borderRadius: '4px',
                 border: '1px solid #ccc',
-                width: '200px'
+                width: '100%',
               }}
             />
             {isAdmin && (
@@ -261,20 +279,19 @@ const UserListPage: React.FC = () => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleAddUser}
-                style={{
-                height: '42px'
-              }}
+                sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'140px'}}
               >
                 Add User
               </Button>
             )}
           </Box>
         </Box>
+
         <TableContainer>
           <Table stickyHeader aria-label="user table">
             <TableHead>
               <TableRow>
-                <TableCell sortDirection={sortColumn === 'firstname' ? sortDirection : false}>
+                <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'firstname' ? sortDirection : false}>
                   <TableSortLabel
                     active={sortColumn === 'firstname'}
                     direction={sortColumn === 'firstname' ? sortDirection : 'asc'}
@@ -283,7 +300,7 @@ const UserListPage: React.FC = () => {
                     First Name
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sortDirection={sortColumn === 'lastname' ? sortDirection : false}>
+                <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'lastname' ? sortDirection : false}>
                   <TableSortLabel
                     active={sortColumn === 'lastname'}
                     direction={sortColumn === 'lastname' ? sortDirection : 'asc'}
@@ -318,7 +335,7 @@ const UserListPage: React.FC = () => {
                     <TableCell>{user.phoneNumber}</TableCell>
                     <TableCell>{calculateAge(user.dateofbirth)}</TableCell>
                     {isAdmin && (
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }}>
                         <IconButton onClick={() => handleEdit(user)} color="primary">
                           <EditIcon />
                         </IconButton>

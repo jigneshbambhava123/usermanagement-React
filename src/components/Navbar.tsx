@@ -89,6 +89,18 @@ const Navbar: React.FC = () => {
                 Resource Management
               </Link>
             )}
+
+            {(isAdmin || isUser) && (
+              <Link 
+                to="/myresource" 
+                className={`nav-link ${isActive('/myresource') ? 'active' : ''}`}
+                onClick={closeMenu}
+              >
+                <i className="bi bi-list-task me-2"></i>
+                My Resources
+              </Link>
+            )}
+
           </div>
 
           <button

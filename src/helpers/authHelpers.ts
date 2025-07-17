@@ -42,6 +42,27 @@ export const getUserRoles = (): string[] => {
   }
 };
 
+export const getUserIdFromToken = (): number | null => {
+  const token = sessionStorage.getItem("jwt_token") || localStorage.getItem("jwt_token");
+  console.log("token",token)
+  if (!token) return null;
+
+   try {
+    const decoded = jwtDecode<{ [key: string]: any }>(token);
+    
+    const nameIdKey = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+    const nameId = decoded[nameIdKey];
+
+    console.log("Decoded:", decoded);
+    console.log("nameId:", nameId);
+
+    return nameId ? parseInt(nameId) : null;
+  } catch (error) {
+    console.error("Failed to decode token", error);
+    return null;
+  }
+};
+
 export const logout = () => {
   localStorage.removeItem('jwt_token');
   sessionStorage.removeItem('jwt_token');

@@ -37,7 +37,7 @@ const RegisterSchema = Yup.object().shape({
     .required("Last name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
   phoneNumber: Yup.string()
-    .matches(/^[0-9]{10}$/, "Phone must be 10 digits")
+    .matches(/^[0-9]{10}$/, "Phone number must be 10 digits")
     .required("Phone number is required"),
   dateofbirth: Yup.date().required("Date of birth is required"),
   password: Yup.string()
