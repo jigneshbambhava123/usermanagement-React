@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 import { debounce } from 'lodash';
 import BookingFormDialog from '../components/BookingFormDialog';
 import dayjs from "dayjs";
+import { da } from 'date-fns/locale';
 
 interface Booking {
   id: number;
@@ -28,7 +29,7 @@ interface Booking {
 }
 
 type SortColumn = 'resourceName' | 'quantity' | 'fromDate' | 'toDate';
-type DateFilter = 'allTime' | 'today' | 'thisWeek' | 'thisMonth';
+type DateFilter = 'allTime' | 'today' | 'thisweek' | 'thismonth';
 
 const MyResourcePage: React.FC = () => {
   const [tab, setTab] = useState<'active' | 'history'>('active');
@@ -46,109 +47,43 @@ const MyResourcePage: React.FC = () => {
 
   const userId = getUserIdFromToken();
 
-  const calculateDateRange = (filter: DateFilter) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); 
-
-    let startDate: Date | null = null;
-    let endDate: Date | null = null;
-
-    switch (filter) {
-      case 'today':
-        startDate = today;
-        endDate = new Date(today);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case 'thisWeek':
-        startDate = new Date(today.setDate(today.getDate() - today.getDay())); 
-        endDate = new Date(today);
-        endDate.setDate(today.getDate() + 6); 
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case 'thisMonth':
-        startDate = new Date(today.getFullYear(), today.getMonth(), 1); 
-        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); 
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case 'allTime':
-      default:
-        break;
-    }
-    return { startDate, endDate };
-  };
-
   const fetchBookings = useCallback(async () => {
-    if (!userId) {
-      setBookings([]);
-      setTotalBookings(0);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const data =
-        tab === 'active'
-          ? await getActiveBookings(userId)
-          : await getBookingHistory(userId);
-
-      if (Array.isArray(data)) {
-        let filtered = data.filter((booking) =>
-          booking.resourceName?.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-
-        const { startDate, endDate } = calculateDateRange(dateFilter);
-        if (startDate && endDate) {
-          filtered = filtered.filter(booking => {
-            const bookingFromDate = new Date(booking.fromDate);
-            bookingFromDate.setHours(0, 0, 0, 0);
-            return bookingFromDate >= startDate && bookingFromDate <= endDate;
-          });
-        }
-
-        filtered.sort((a, b) => {
-          let valA: string | number;
-          let valB: string | number;
-
-          if (sortColumn === 'resourceName') {
-            valA = a.resourceName.toLowerCase();
-            valB = b.resourceName.toLowerCase();
-          } else if (sortColumn === 'quantity') {
-            valA = a.quantity;
-            valB = b.quantity;
-          } else if (sortColumn === 'fromDate') {
-            valA = new Date(a.fromDate).getTime();
-            valB = new Date(b.fromDate).getTime();
-          } else if (sortColumn === 'toDate') {
-            valA = new Date(a.toDate).getTime();
-            valB = new Date(b.toDate).getTime();
-          } else {
-            valA = '';
-            valB = '';
-          }
-
-          if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-          if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
-          return 0;
-        });
-        console.log(filtered)
-
-        const paged = filtered.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
-
-        setBookings(paged);
-        setTotalBookings(filtered.length);
-      } else {
+      if (!userId) {
         setBookings([]);
         setTotalBookings(0);
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      toast.error("Failed to fetch bookings.");
-      setBookings([]);
-      setTotalBookings(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [tab, userId, page, rowsPerPage, searchQuery, sortColumn, sortDirection,dateFilter]);
+
+      setLoading(true);
+      try {
+        const commonParams = {
+          userId,
+          search: searchQuery,
+          sortColumn,
+          sortDirection,
+          pageNumber: page + 1, 
+          pageSize: rowsPerPage,
+          timeFilter: dateFilter, 
+        };
+
+        const data =
+          tab === 'active'
+            ? await getActiveBookings(commonParams)
+            : await getBookingHistory(commonParams);
+
+            console.log("dsdsdd",data.data)
+          setBookings(data.data.data);
+          setTotalBookings(data.data.totalCount);
+        
+      } catch (error) {
+        toast.error("Failed to fetch bookings.");
+        setBookings([]);
+        setTotalBookings(0);
+      } finally {
+        setLoading(false);
+      }
+    }, [tab,userId,page,rowsPerPage,searchQuery,sortColumn,sortDirection,dateFilter]);
 
   useEffect(() => {
     const debouncedFetch = debounce(() => {
@@ -179,6 +114,11 @@ const MyResourcePage: React.FC = () => {
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setPage(0); 
   };
 
   const handleDateFilterChange = (event: any) => {
@@ -251,7 +191,7 @@ const MyResourcePage: React.FC = () => {
               type="text"
               placeholder="Search resource..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               style={{
                 padding: '8px',
                 borderRadius: '4px',
@@ -269,8 +209,8 @@ const MyResourcePage: React.FC = () => {
               >
                 <MenuItem value="allTime">All Time</MenuItem>
                 <MenuItem value="today">Today</MenuItem>
-                <MenuItem value="thisWeek">This Week</MenuItem>
-                <MenuItem value="thisMonth">This Month</MenuItem>
+                <MenuItem value="thisweek">This Week</MenuItem>
+                <MenuItem value="thismonth">This Month</MenuItem>
               </Select>
             </FormControl>
             <Button
@@ -344,7 +284,7 @@ const MyResourcePage: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!loading && bookings.length > 0 ? (
+              {!loading && bookings?.length > 0 ? (
                 bookings.map((booking) => (
                   <TableRow hover key={booking.id}>
                     <TableCell>{booking.resourceName}</TableCell>

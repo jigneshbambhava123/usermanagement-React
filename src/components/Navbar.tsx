@@ -68,6 +68,18 @@ const Navbar: React.FC = () => {
         {/* Navigation Links */}
         <div className={`navbar-menu ${isMenuOpen ? 'open' : ''}`}>
           <div className="navbar-links">
+
+            {(isAdmin || isUser) && (
+              <Link 
+                to="/dashboard" 
+                className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}
+                onClick={closeMenu}
+              >
+                <i className="bi bi-grid-fill me-2"></i>
+                Dashboard
+              </Link>
+            )}
+
             {(isAdmin || isUser) && (
               <Link 
                 to="/users" 

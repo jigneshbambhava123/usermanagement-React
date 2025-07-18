@@ -18,15 +18,31 @@ export interface CreateBookingPayload {
   toDate: string;
 }
 
-export const getActiveBookings = async (userId: number) => {
-  const res = await api.get(`/booking/activebookings?id=${userId}`);
-  return res.data;
-};
+export const getActiveBookings = (params: {
+  userId?: number;
+  search?: string;
+  sortColumn?: string;
+  sortDirection?: 'asc' | 'desc';
+  pageNumber: number;
+  pageSize: number;
+  timeFilter?: string;
+}) =>
+  api.get<{ data: Booking[]; totalCount: number }>('/booking/activebookings', {
+    params,
+  });
 
 
-export const getBookingHistory = async (userId: number) => {
-  const res = await api.get(`/booking/resourcehistory?id=${userId}`);
-  return res.data;
-};
+export const getBookingHistory = (params: {
+  userId?: number;
+  search?: string;
+  sortColumn?: string;
+  sortDirection?: 'asc' | 'desc';
+  pageNumber: number;
+  pageSize: number;
+  timeFilter?: string;
+}) =>
+  api.get<{ data: Booking[]; totalCount: number }>('/booking/resourcehistory', {
+    params,
+  });
 
 export const createBooking = (booking: CreateBookingPayload) => api.post('/booking', booking);

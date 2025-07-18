@@ -14,6 +14,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ResourceListPage from './pages/ResourceListPage';
 import MyResourcePage from './pages/MyResourcePage';
+import DashboardPage from './pages/DashboardPage';
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -28,7 +29,7 @@ const AppRoutes = () => {
 
   const is404 = useMatch("*") && ![
     '/', '/register', '/forgotpassword', '/account/resetpassword',
-    '/unauthorized', '/users','/resource','/myresource'
+    '/unauthorized', '/users','/resource','/myresource','/dashboard'
   ].includes(location.pathname.toLowerCase());
 
   const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname.toLowerCase()) || is404;
@@ -49,6 +50,14 @@ const AppRoutes = () => {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="/Account/ResetPassword" element={<ResetPasswordPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute requiredRoles={["Admin", "User"]}>
+              <DashboardPage />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/users"
           element={

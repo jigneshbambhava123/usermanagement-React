@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { debounce } from 'lodash';
 import PersonIcon from '@mui/icons-material/Person';
 import UserFormDialog from '../components/UserFormDialog'; 
+import { da } from 'date-fns/locale';
 
 type AddUserFormData = Omit<User, 'id' | 'isActive'>;
 type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
@@ -79,7 +80,7 @@ const UserListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  type SortColumn = 'firstname' | 'lastname' | 'role';
+  type SortColumn = 'firstname' | 'lastname' | 'roleid';
   const [sortColumn, setSortColumn] = useState<SortColumn>('firstname');
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -94,47 +95,21 @@ const UserListPage: React.FC = () => {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getUsers();
-      const data = res.data;
+      const res = await getUsers({
+        search: searchQuery,
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+        sortColumn,
+        sortDirection,
+      });
+      
+      console.log(res.data)
+      const { data, totalCount } = res.data;
+      setUsers(data);
+      setTotalUsers(totalCount);
+      console.log("data",data)
+      console.log("totalCount",totalCount)
 
-      if (Array.isArray(data)) {
-        let filtered = data.filter((user) =>
-          user.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-
-        filtered.sort((a, b) => {
-          let valA: string | number;
-          let valB: string | number;
-
-          if (sortColumn === 'firstname') {
-            valA = a.firstname.toLowerCase();
-            valB = b.firstname.toLowerCase();
-          } else if (sortColumn === 'lastname') {
-            valA = a.lastname.toLowerCase();
-            valB = b.lastname.toLowerCase();
-          } else if (sortColumn === 'role') {
-            valA = getRoleName(a.roleId).toLowerCase();
-            valB = getRoleName(b.roleId).toLowerCase();
-          } else {
-            valA = '';
-            valB = '';
-          }
-
-          if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-          if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
-          return 0;
-        });
-
-        const paged = filtered.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
-
-        setUsers(paged);
-        setTotalUsers(filtered.length);
-      } else {
-        setUsers([]);
-        setTotalUsers(0);
-      }
     } catch (error) {
       toast.error("Failed to fetch users.");
       setUsers([]);
@@ -143,6 +118,7 @@ const UserListPage: React.FC = () => {
       setLoading(false);
     }
   }, [page, rowsPerPage, searchQuery, sortColumn, sortDirection]);
+
 
   useEffect(() => {
     const success = localStorage.getItem("login_success");
@@ -169,6 +145,11 @@ const UserListPage: React.FC = () => {
       setSortDirection('asc');
     }
     setPage(0);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPage(0);
+    setSearchQuery(e.target.value);
   };
 
   const handleAddUser = () => {
@@ -266,7 +247,7 @@ const UserListPage: React.FC = () => {
               type="text"
               placeholder="Search user..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               style={{
                 padding: '8px',
                 borderRadius: '4px',
@@ -310,11 +291,11 @@ const UserListPage: React.FC = () => {
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>Email</TableCell>
-                <TableCell sortDirection={sortColumn === 'role' ? sortDirection : false}>
+                <TableCell sortDirection={sortColumn === 'roleid' ? sortDirection : false}>
                   <TableSortLabel
-                    active={sortColumn === 'role'}
-                    direction={sortColumn === 'role' ? sortDirection : 'asc'}
-                    onClick={() => handleSortClick('role')}
+                    active={sortColumn === 'roleid'}
+                    direction={sortColumn === 'roleid' ? sortDirection : 'asc'}
+                    onClick={() => handleSortClick('roleid')}
                   >
                     Role
                   </TableSortLabel>
@@ -325,7 +306,7 @@ const UserListPage: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!loading && users.length > 0 ? (
+              {!loading && users?.length > 0 ? (
                 users.map((user) => (
                   <TableRow hover key={user.id}>
                     <TableCell>{user.firstname}</TableCell>

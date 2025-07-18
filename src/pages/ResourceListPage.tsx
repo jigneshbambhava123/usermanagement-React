@@ -7,7 +7,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { getResources, createResource, updateResource, deleteResource,updateResourceField } from '../api/resourceApi';
+import { getResources,getfilterResources, createResource, updateResource, deleteResource,updateResourceField } from '../api/resourceApi';
 import type { Resource } from '../api/resourceApi';
 import { getUserRoles } from '../helpers/authHelpers';
 import { toast } from "react-toastify";
@@ -46,7 +46,7 @@ const ResourceListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [sortColumn, setSortColumn] = useState<'name' | 'quantity'>('name');
+  const [sortColumn, setSortColumn] = useState<'name' | 'quantity' | 'usedquantity'>('name');
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [toDeleteId, setToDeleteId] = useState<number | null>(null);
@@ -63,30 +63,19 @@ const ResourceListPage: React.FC = () => {
   const fetchResources = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getResources();
-      let data = res.data;
+     const res = await getfilterResources({
+      search: searchQuery,
+      pageNumber: page + 1,
+      pageSize: rowsPerPage,
+      sortColumn,
+      sortDirection,
+    });
 
-      if (Array.isArray(data)) {
-        let filtered = data.filter(resource =>
-          resource.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (resource.description || '').toLowerCase().includes(searchQuery.toLowerCase())
-        );
-
-        filtered.sort((a, b) => {
-          let aVal = sortColumn === 'name' ? a.name.toLowerCase() : a.quantity;
-          let bVal = sortColumn === 'name' ? b.name.toLowerCase() : b.quantity;
-          if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-          if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-          return 0;
-        });
-
-        const paged = filtered.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
-        setResources(paged);
-        setTotal(filtered.length);
-      } else {
-        setResources([]);
-        setTotal(0);
-      }
+    setResources(res.data.data); 
+    setTotal(res.data.totalCount);
+    console.log(res.data.data);
+    console.log(res.data.totalCount)
+      
     } catch {
       toast.error("Failed to fetch resources.");
       setResources([]);
@@ -105,7 +94,7 @@ const ResourceListPage: React.FC = () => {
     return () => debounced.cancel();
   }, [fetchResources]);
 
-  const handleSortClick = (column: 'name' | 'quantity') => {
+  const handleSortClick = (column: 'name' | 'quantity'| 'usedquantity') => {
     if (sortColumn === column) {
       setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
@@ -113,6 +102,11 @@ const ResourceListPage: React.FC = () => {
       setSortDirection('asc');
     }
     setPage(0);
+  };
+
+  const handleResourceSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPage(0);
+    setSearchQuery(e.target.value);
   };
 
    const handleAddResource = () => {
@@ -279,7 +273,7 @@ const ResourceListPage: React.FC = () => {
               type="text"
               placeholder="Search resource..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleResourceSearchChange}
               style={{
                 padding: '8px',
                 borderRadius: '4px',
@@ -327,12 +321,20 @@ const ResourceListPage: React.FC = () => {
                     Quantity
                   </TableSortLabel>
                 </TableCell>
-                <TableCell>Used</TableCell>
+                <TableCell sortDirection={sortColumn === 'usedquantity' ? sortDirection : false}>
+                  <TableSortLabel
+                    active={sortColumn === 'usedquantity'}
+                    direction={sortColumn === 'usedquantity' ? sortDirection : 'asc'}
+                    onClick={() => handleSortClick('usedquantity')}
+                  >
+                    Used
+                  </TableSortLabel>
+                </TableCell>
                 {isAdmin && <TableCell>Actions</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
-              {!loading && resources.length > 0 ? (
+              {!loading && resources?.length > 0 ? (
                 resources.map(resource => (
                   <TableRow key={resource.id}>
                     <TableCell onClick={() => handleCellClick(resource.id, 'name', resource.name)}>
