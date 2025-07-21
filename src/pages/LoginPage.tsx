@@ -7,7 +7,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { CandidateIcon } from "../assets/assets"; 
 import { toast } from "react-toastify";
 import { HeroImg } from "../assets/assets";
-
+ 
 interface ILoginRequest {
   email: string;
   password: string;

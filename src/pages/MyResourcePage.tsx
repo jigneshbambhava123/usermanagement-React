@@ -17,6 +17,7 @@ import { debounce } from 'lodash';
 import BookingFormDialog from '../components/BookingFormDialog';
 import dayjs from "dayjs";
 import { da } from 'date-fns/locale';
+import Loader from '../components/Loader';
 
 interface Booking {
   id: number;
@@ -47,6 +48,8 @@ const MyResourcePage: React.FC = () => {
 
   const userId = getUserIdFromToken();
 
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
   const fetchBookings = useCallback(async () => {
       if (!userId) {
         setBookings([]);
@@ -67,10 +70,12 @@ const MyResourcePage: React.FC = () => {
           timeFilter: dateFilter, 
         };
 
-        const data =
+        const [data] = await Promise.all([
           tab === 'active'
-            ? await getActiveBookings(commonParams)
-            : await getBookingHistory(commonParams);
+            ? getActiveBookings(commonParams)
+            : getBookingHistory(commonParams),
+          delay(800) 
+        ]);
 
             console.log("dsdsdd",data.data)
           setBookings(data.data.data);
@@ -80,6 +85,7 @@ const MyResourcePage: React.FC = () => {
         toast.error("Failed to fetch bookings.");
         setBookings([]);
         setTotalBookings(0);
+        await delay(500);
       } finally {
         setLoading(false);
       }
@@ -88,7 +94,7 @@ const MyResourcePage: React.FC = () => {
   useEffect(() => {
     const debouncedFetch = debounce(() => {
       fetchBookings();
-    }, 500);
+    }, 300);
 
     debouncedFetch();
 
@@ -284,7 +290,7 @@ const MyResourcePage: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!loading && bookings?.length > 0 ? (
+              {bookings?.length > 0 ? (
                 bookings.map((booking) => (
                   <TableRow hover key={booking.id}>
                     <TableCell>{booking.resourceName}</TableCell>
@@ -294,11 +300,13 @@ const MyResourcePage: React.FC = () => {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell colSpan={tab === 'active' ? 6 : 5} align="center">
-                    {loading ? "Loading..." : "No bookings found."}
-                  </TableCell>
-                </TableRow>
+                !loading && (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      No resources found.
+                    </TableCell>
+                  </TableRow>
+                )
               )}
             </TableBody>
           </Table>
@@ -323,7 +331,6 @@ const MyResourcePage: React.FC = () => {
             return;
           }
 
-          // Convert BookingFormData to CreateBookingPayload
           const payload: CreateBookingPayload = {
             resourceId: formData.resourceId as number,
             quantity: Number(formData.quantity),
@@ -336,6 +343,8 @@ const MyResourcePage: React.FC = () => {
           handleBookingFormSubmit(payload);
         }}
       />
+
+      <Loader open={loading} />
     </Box>
   );
 };

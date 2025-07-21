@@ -46,3 +46,6 @@ export const getBookingHistory = (params: {
   });
 
 export const createBooking = (booking: CreateBookingPayload) => api.post('/booking', booking);
+export const releaseExpiredBookings = () => {
+  return api.post('/booking/ReleaseExpiredBookings');
+};

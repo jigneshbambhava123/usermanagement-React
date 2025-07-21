@@ -12,8 +12,10 @@ import type { Resource } from '../api/resourceApi';
 import { getUserRoles } from '../helpers/authHelpers';
 import { toast } from "react-toastify";
 import { debounce } from 'lodash';
+import { WarningIcon } from '../assets/assets';
 import * as Yup from 'yup';
 import ResourceFormDialog from '../components/ResourceFormDialog';
+import Loader from '../components/Loader';
 
 type CreateResourceFormData = Omit<Resource, 'id' | 'usedQuantity'>;
 type UpdateResourceFormData = Omit<Resource, 'usedQuantity'>;
@@ -60,26 +62,31 @@ const ResourceListPage: React.FC = () => {
   const [editingCell, setEditingCell] = useState<{ id: number; field: keyof Resource } | null>(null);
   const [editedValue, setEditedValue] = useState<string | number>('');
 
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
   const fetchResources = useCallback(async () => {
     setLoading(true);
     try {
-     const res = await getfilterResources({
-      search: searchQuery,
-      pageNumber: page + 1,
-      pageSize: rowsPerPage,
-      sortColumn,
-      sortDirection,
-    });
-
+      
+      const [res] = await Promise.all([
+        getfilterResources({
+          search: searchQuery,
+          pageNumber: page + 1,
+          pageSize: rowsPerPage,
+          sortColumn,
+          sortDirection,
+        }),
+        delay(800) 
+      ]);
+  
     setResources(res.data.data); 
     setTotal(res.data.totalCount);
-    console.log(res.data.data);
-    console.log(res.data.totalCount)
       
     } catch {
       toast.error("Failed to fetch resources.");
       setResources([]);
       setTotal(0);
+      await delay(500);
     } finally {
       setLoading(false);
     }
@@ -88,7 +95,7 @@ const ResourceListPage: React.FC = () => {
   useEffect(() => {
     const debounced = debounce(() => {
       fetchResources();
-    }, 500);
+    }, 300);
 
     debounced();
     return () => debounced.cancel();
@@ -145,6 +152,7 @@ const ResourceListPage: React.FC = () => {
       try {
         await deleteResource(toDeleteId);
         toast.success("Resource deleted successfully.");
+        setPage(0);
         fetchResources();
       } catch {
         toast.error("Delete failed.");
@@ -327,14 +335,14 @@ const ResourceListPage: React.FC = () => {
                     direction={sortColumn === 'usedquantity' ? sortDirection : 'asc'}
                     onClick={() => handleSortClick('usedquantity')}
                   >
-                    Used
+                    Booked Quantity
                   </TableSortLabel>
                 </TableCell>
                 {isAdmin && <TableCell>Actions</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
-              {!loading && resources?.length > 0 ? (
+              {resources?.length > 0 ? (
                 resources.map(resource => (
                   <TableRow key={resource.id}>
                     <TableCell onClick={() => handleCellClick(resource.id, 'name', resource.name)}>
@@ -397,11 +405,13 @@ const ResourceListPage: React.FC = () => {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell colSpan={isAdmin ? 5 : 4} align="center">
-                    {loading ? "Loading..." : "No resources found."}
-                  </TableCell>
-                </TableRow>
+                !loading && (
+                  <TableRow>
+                    <TableCell colSpan={isAdmin ? 5 : 4} align="center">
+                      No resources found.
+                    </TableCell>
+                  </TableRow>
+                )
               )}
             </TableBody>
           </Table>
@@ -424,16 +434,47 @@ const ResourceListPage: React.FC = () => {
         onSubmit={handleResourceSubmit}
       />
 
-      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete this resource?</Typography>
+      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 2,
+          },
+        }}>
+        <DialogTitle
+        id="confirm-dialog-title"
+        className="text-xl font-bold text-center text-white"
+        sx={{
+          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)',
+          py: 2,
+          px: 3,
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+        }}>Confirm Delete</DialogTitle>
+        <DialogContent sx={{ pt: 5 }}>
+          <Box display="flex" flexDirection="column" alignItems="center">
+            <img src={WarningIcon} alt="logo" className="w-15 h-15 mt-5" />
+            <Typography
+              id="confirm-dialog-description"
+              sx={{ pb: 5, fontSize: '1rem', color: '#333', textAlign: 'center' }}
+            >
+              Are you sure you want to delete this resource?
+            </Typography>
+          </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
-          <Button onClick={confirmDelete} color="error">Confirm</Button>
+        <DialogActions sx={{ justifyContent: 'flex-end' }}>
+          <Button onClick={() => setConfirmOpen(false)} color="primary" variant="outlined">
+            Cancel
+          </Button>
+          <Button onClick={confirmDelete} color="error" variant="contained" autoFocus>
+            Confirm
+          </Button>
         </DialogActions>
       </Dialog>
+
+      <Loader open={loading} />
     </Box>
   );
 };

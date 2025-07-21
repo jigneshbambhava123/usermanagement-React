@@ -8,6 +8,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { getResources } from '../api/resourceApi';
 import type { Resource } from '../api/resourceApi';
 import { toast } from 'react-toastify';
+import { useSignalR } from '../signalr/useSignalR';
 
 interface BookingFormData {
   resourceId: number | '';
@@ -36,6 +37,23 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
   // Get today's date for minimum date restriction
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+
+  useSignalR((resourceId, newAvailableQuantity) => {
+    setResources(prevResources =>
+      prevResources.map(resource =>
+        resource.id === resourceId
+          ? { ...resource, usedQuantity: resource.quantity - newAvailableQuantity }
+          : resource
+      )
+    );
+  
+    if (selectedResource?.id === resourceId) {
+      setSelectedResource(prev => prev ? { 
+        ...prev, 
+        usedQuantity: prev.quantity - newAvailableQuantity 
+      } : null);
+    }
+  });
 
   const fetchResources = useCallback(async () => {
     try {
@@ -149,11 +167,24 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
       aria-labelledby="form-dialog-title"
       maxWidth="sm"
       fullWidth
-      PaperProps={{ sx: { maxWidth: 600 } }}
-    >
-      <DialogTitle id="form-dialog-title">Add New Booking</DialogTitle>
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          p: 2,
+        },
+      }}    >
+      <DialogTitle id="form-dialog-title"
+      className="text-xl font-bold text-center text-white"
+      sx={{
+        background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)',
+        py: 2,
+        px: 3,
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
+      }}>
+        Add New Booking</DialogTitle>
       <DialogContent>
-        <div className="space-y-4 mt-1">
+        <div className="space-y-4 mt-4">
           {/* Resource Select */}
           <FormControl
             fullWidth
@@ -299,10 +330,10 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
       </DialogContent>
       
       <DialogActions>
-        <Button onClick={onClose} color="secondary">
+        <Button onClick={onClose} color="primary" variant="outlined">
           Cancel
         </Button>
-        <Button onClick={handleSubmit} color="primary">
+        <Button onClick={handleSubmit} color="primary" variant="contained">
           Add Booking
         </Button>
       </DialogActions>

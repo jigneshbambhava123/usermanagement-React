@@ -15,6 +15,8 @@ import { debounce } from 'lodash';
 import PersonIcon from '@mui/icons-material/Person';
 import UserFormDialog from '../components/UserFormDialog'; 
 import { da } from 'date-fns/locale';
+import Loader from '../components/Loader';
+import { WarningIcon } from '../assets/assets';
 
 type AddUserFormData = Omit<User, 'id' | 'isActive'>;
 type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
@@ -53,18 +55,46 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, onClose, onConfirm,
       onClose={onClose}
       aria-labelledby="confirm-dialog-title"
       aria-describedby="confirm-dialog-description"
+      maxWidth="xs"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          p: 2,
+        },
+      }}
     >
-      <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
-      <DialogContent>
-        <Typography id="confirm-dialog-description">
-          {message}
-        </Typography>
+      <DialogTitle
+        id="confirm-dialog-title"
+        className="text-xl font-bold text-center text-white"
+        sx={{
+          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)',
+          py: 2,
+          px: 3,
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+        }}
+      >
+        {title}
+      </DialogTitle>
+
+      <DialogContent sx={{ pt: 5 }}>
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <img src={WarningIcon} alt="logo" className="w-15 h-15 mt-5" />
+          <Typography
+            id="confirm-dialog-description"
+            sx={{ pb: 5, fontSize: '1rem', color: '#333', textAlign: 'center' }}
+          >
+            {message}
+          </Typography>
+        </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="primary">
+
+      <DialogActions sx={{ justifyContent: 'flex-end' }}>
+        <Button onClick={onClose} color="primary" variant="outlined">
           Cancel
         </Button>
-        <Button onClick={onConfirm} color="error" autoFocus>
+        <Button onClick={onConfirm} color="error" variant="contained" autoFocus>
           Confirm
         </Button>
       </DialogActions>
@@ -92,16 +122,21 @@ const UserListPage: React.FC = () => {
   const roles = getUserRoles();
   const isAdmin = roles.includes("Admin");
 
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getUsers({
-        search: searchQuery,
-        pageNumber: page + 1,
-        pageSize: rowsPerPage,
-        sortColumn,
-        sortDirection,
-      });
+      const [res] = await Promise.all([
+        getUsers({
+          search: searchQuery,
+          pageNumber: page + 1,
+          pageSize: rowsPerPage,
+          sortColumn,
+          sortDirection,
+        }),
+        delay(800) 
+      ]);
       
       console.log(res.data)
       const { data, totalCount } = res.data;
@@ -114,6 +149,7 @@ const UserListPage: React.FC = () => {
       toast.error("Failed to fetch users.");
       setUsers([]);
       setTotalUsers(0);
+      await delay(500);
     } finally {
       setLoading(false);
     }
@@ -128,7 +164,7 @@ const UserListPage: React.FC = () => {
     }
     const debouncedFetch = debounce(() => {
       fetchUsers();
-    }, 500);
+    }, 300);
 
     debouncedFetch();
 
@@ -172,6 +208,7 @@ const UserListPage: React.FC = () => {
       try {
         await deleteUser(userToDeleteId);
         toast.success("User deleted successfully!");
+        setPage(0);
         fetchUsers(); 
       } catch (error) {
         toast.error("Failed to delete user.");
@@ -306,7 +343,7 @@ const UserListPage: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!loading && users?.length > 0 ? (
+              {users?.length > 0 ? (
                 users.map((user) => (
                   <TableRow hover key={user.id}>
                     <TableCell>{user.firstname}</TableCell>
@@ -328,11 +365,13 @@ const UserListPage: React.FC = () => {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell colSpan={isAdmin ? 7 : 6} align="center">
-                    {loading ? "Loading..." : "No users found."}
-                  </TableCell>
-                </TableRow>
+                !loading && (
+                  <TableRow>
+                    <TableCell colSpan={isAdmin ? 7 : 6} align="center">
+                      No users found.
+                    </TableCell>
+                  </TableRow>
+                )
               )}
             </TableBody>
           </Table>
@@ -363,6 +402,8 @@ const UserListPage: React.FC = () => {
         title="Confirm Delete"
         message="Are you sure you want to delete this user? "
       />
+
+      <Loader open={loading} />
     </Box>
   );
 };

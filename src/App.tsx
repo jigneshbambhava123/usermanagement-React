@@ -15,6 +15,7 @@ import UnauthorizedPage from './pages/UnauthorizedPage';
 import ResourceListPage from './pages/ResourceListPage';
 import MyResourcePage from './pages/MyResourcePage';
 import DashboardPage from './pages/DashboardPage';
+import { releaseExpiredBookings } from './api/bookingApi'; 
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -39,6 +40,15 @@ const AppRoutes = () => {
     if (token && isTokenExpired(token)) {
       logout();
     }
+    releaseExpiredBookings().catch(console.error);
+
+    const interval = setInterval(() => {
+      releaseExpiredBookings().catch((err) => {
+        console.error('Failed to release bookings:', err);
+      });
+    }, 60000); 
+
+    return () => clearInterval(interval);
   }, []);
 
   return (

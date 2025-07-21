@@ -3,8 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { getUserRoles } from '../helpers/authHelpers'; 
 import { logout } from '../helpers/authHelpers';
 import './Navbar.css'
-import { CandidateIcon } from "../assets/assets"; 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from '@mui/material';
+import { CandidateIcon, HeroImg } from "../assets/assets"; 
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography } from '@mui/material';
+import { WarningIcon } from '../assets/assets';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
@@ -48,7 +49,7 @@ const Navbar: React.FC = () => {
       <div className="navbar-container">
         {/* Logo/Brand */}
         <div className="navbar-brand  gap-2">
-          <img src={CandidateIcon} alt="logo" className="w-15 h-15" />
+          <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
           <span className="brand-text">User Management</span>
         </div>
 
@@ -123,8 +124,6 @@ const Navbar: React.FC = () => {
           </button>
         </div>
       </div>
-
-      
     </nav>
 
     {/* Logout Confirmation Dialog */}
@@ -132,18 +131,39 @@ const Navbar: React.FC = () => {
         open={isLogoutDialogOpen}
         onClose={handleLogoutCancel}
         aria-labelledby="logout-dialog-title"
-      >
-        <DialogTitle id="logout-dialog-title">Confirm Logout</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Are you sure you want to logout?
-          </Typography>
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 2,
+          },
+        }}>
+        <DialogTitle id="logout-dialog-title"
+          className="text-xl font-bold text-center text-white"
+          sx={{
+            background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)',
+            py: 2,
+            px: 3,
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+          }}>Confirm Logout</DialogTitle>
+        <DialogContent sx={{ pt: 5 }}>
+          <Box display="flex" flexDirection="column" alignItems="center">
+            <img src={WarningIcon} alt="logo" className="w-15 h-15 mt-5" />
+            <Typography
+              id="confirm-dialog-description"
+              sx={{ pb: 5, fontSize: '1rem', color: '#333', textAlign: 'center' }}
+            >
+              Are you sure you want to logout?
+            </Typography>
+          </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleLogoutCancel} color="primary">
+          <Button onClick={handleLogoutCancel} color="primary" variant="outlined">
             Cancel
           </Button>
-          <Button onClick={handleLogoutConfirm} color="error">
+          <Button onClick={handleLogoutConfirm} color="error" variant="contained">
             Logout
           </Button>
         </DialogActions>

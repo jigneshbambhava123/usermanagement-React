@@ -89,8 +89,22 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
       aria-labelledby="resource-dialog-title"
       maxWidth="sm"
       fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          p: 2,
+        },
+      }}
     >
-      <DialogTitle id="resource-dialog-title">
+      <DialogTitle id="resource-dialog-title" 
+        className="text-xl font-bold text-center text-white"
+        sx={{
+          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)',
+          py: 2,
+          px: 3,
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+        }}>
         {isEditMode ? 'Edit Resource' : 'Add New Resource'}
       </DialogTitle>
       <DialogContent>
@@ -102,7 +116,7 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
         >
           {({ errors, touched, isSubmitting }) => (
             <Form>
-              <div className="space-y-4 mt-1">
+              <div className="space-y-4 mt-4">
                 {/* Name */}
                 <div>
                   <Field
@@ -163,10 +177,10 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
               </div>
 
               <DialogActions>
-                <Button onClick={onClose} color="secondary">
+                <Button onClick={onClose} color="primary" variant="outlined">
                   Cancel
                 </Button>
-                <Button type="submit" color="primary" disabled={isSubmitting}>
+                <Button type="submit" color="primary" variant="contained">
                   {isEditMode ? 'Save Changes' : 'Add Resource'}
                 </Button>
               </DialogActions>

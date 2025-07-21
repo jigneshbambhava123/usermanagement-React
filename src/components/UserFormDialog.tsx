@@ -111,9 +111,27 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
       aria-labelledby="form-dialog-title"
       maxWidth="sm"
       fullWidth
-      PaperProps={{ sx: { maxWidth: 600 } }} 
+      // PaperProps={{ sx: { maxWidth: 600 } }} 
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          p: 2,
+        },
+      }}
     >
-      <DialogTitle id="form-dialog-title">{isEditMode ? 'Edit User' : 'Add New User'}</DialogTitle>
+      <DialogTitle
+        id="form-dialog-title"
+        className="text-xl font-bold text-center text-white"
+        sx={{
+          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)',
+          py: 2,
+          px: 3,
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+        }}      >
+        {isEditMode ? 'Edit User' : 'Add New User'}
+      </DialogTitle>
+
       <DialogContent>
         <Formik
           initialValues={initialFormikValues}
@@ -123,7 +141,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
         >
           {({ errors, touched, isSubmitting, setFieldValue }) => (
             <Form>
-              <div className="space-y-4 mt-1">
+              <div className="space-y-4 mt-4">
                 {/* First Name */}
                 <div>
                   <Field
@@ -276,10 +294,10 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
               </div>
 
               <DialogActions>
-                <Button onClick={onClose} color="secondary">
+                <Button onClick={onClose} color="primary" variant="outlined">
                   Cancel
                 </Button>
-                <Button type="submit" color="primary" disabled={isSubmitting}>
+                <Button type="submit" color="primary" variant="contained">
                   {isEditMode ? 'Save Changes' : 'Add User'}
                 </Button>
               </DialogActions>

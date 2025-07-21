@@ -27,9 +27,11 @@ import {
   AreaChart,
   Area,
 } from 'recharts';
+import HistoryIcon from '@mui/icons-material/History';
 import { getActiveUsersCount, getDailyResourceUsage } from '../api/dashboardApi';
 import type { DailyResourceUsage } from '../api/dashboardApi';
 import { getUserIdFromToken } from "../helpers/authHelpers";
+import Loader from '../components/Loader';
 
 const DashboardPage: React.FC = () => {
   const [activeUsers, setActiveUsers] = useState<number>(0);
@@ -40,15 +42,22 @@ const DashboardPage: React.FC = () => {
 
   const userId = getUserIdFromToken();
 
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
   const fetchStats = async () => {
     setLoading(true);
     try {
-      const userStats = await getActiveUsersCount();
-      const usage = await getDailyResourceUsage(userId ?? 0, days);
+      const [userStats, usage] = await Promise.all([
+        getActiveUsersCount(),
+        getDailyResourceUsage(userId ?? 0, days),
+        delay(800) 
+      ]);
+
       setActiveUsers(userStats.activeUsersCount);
       setResourceUsage(usage);
     } catch (error) {
       console.error("Error fetching dashboard data", error);
+      await delay(500);
     } finally {
       setLoading(false);
     }
@@ -60,15 +69,32 @@ const DashboardPage: React.FC = () => {
 
   const totalActiveQuantity = resourceUsage.reduce((sum, item) => sum + item.totalActiveQuantity, 0);
   const totalUsedQuantity = resourceUsage.reduce((sum, item) => sum + item.totalUsedQuantity, 0);
-  const utilizationRate = totalActiveQuantity > 0 ? ((totalUsedQuantity / totalActiveQuantity) * 100).toFixed(1) : '0';
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  const chartData = resourceUsage.map(item => ({
+    ...item,
+    formattedDate: formatDate(item.bookingDate),
+    bookingDate: item.bookingDate
+  }));
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <Paper sx={{ p: 2 }}>
-          <Typography variant="body2" fontWeight={600}>{`Date: ${label}`}</Typography>
+        <Paper sx={{ p: 2, boxShadow: 3, borderRadius: 2 }}>
+          <Typography variant="body2" fontWeight={600} mb={1}>
+            {`Date: ${formatDate(label)}`}
+          </Typography>
           {payload.map((entry: any, index: number) => (
-            <Typography key={index} variant="body2" color={entry.color}>{`${entry.name}: ${entry.value}`}</Typography>
+            <Typography key={index} variant="body2" sx={{ color: entry.color }}>
+              {`${entry.name}: ${entry.value}`}
+            </Typography>
           ))}
         </Paper>
       );
@@ -77,71 +103,147 @@ const DashboardPage: React.FC = () => {
   };
 
   const renderChart = () => {
-    const ChartComponent =
-      chartType === 'line' ? LineChart : chartType === 'area' ? AreaChart : BarChart;
+    const commonProps = {
+      data: chartData,
+      margin: { top: 20, right: 30, left: 20, bottom: 80 }
+    };
+
+    const xAxisProps = {
+      dataKey: "formattedDate",
+      tick: { fontSize: 11, angle: -45, textAnchor: 'end' },
+      height: 80,
+      interval: chartData.length > 20 ? Math.floor(chartData.length / 10) : 0
+    };
+
+    const yAxisProps = {
+      tick: { fontSize: 12 },
+      label: { 
+        value: 'Quantity', 
+        angle: -90, 
+        position: 'insideLeft',
+        style: { textAnchor: 'middle' }
+      }
+    };
+
+    if (chartType === 'line') {
+      return (
+        <LineChart {...commonProps}>
+          <XAxis {...xAxisProps} />
+          <YAxis {...yAxisProps} />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend />
+          <Line 
+            type="monotone" 
+            dataKey="totalActiveQuantity" 
+            stroke="#4CAF50" 
+            name="Active Resource" 
+            strokeWidth={3}
+            dot={{ r: 4, fill: "#4CAF50" }}
+            activeDot={{ r: 6, fill: "#4CAF50" }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="totalUsedQuantity" 
+            stroke="#FF9800" 
+            name="Used Resource" 
+            strokeWidth={3}
+            dot={{ r: 4, fill: "#FF9800" }}
+            activeDot={{ r: 6, fill: "#FF9800" }}
+          />
+        </LineChart>
+      );
+    }
+
+    if (chartType === 'area') {
+      return (
+        <AreaChart {...commonProps}>
+          <XAxis {...xAxisProps} />
+          <YAxis {...yAxisProps} />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend />
+          <Area 
+            type="monotone" 
+            dataKey="totalActiveQuantity" 
+            stroke="#4CAF50" 
+            fill="#C8E6C9" 
+            name="Active Resource"
+            strokeWidth={2}
+          />
+          <Area 
+            type="monotone" 
+            dataKey="totalUsedQuantity" 
+            stroke="#FF9800" 
+            fill="#FFE0B2" 
+            name="Used Resource"
+            strokeWidth={2}
+          />
+        </AreaChart>
+      );
+    }
 
     return (
-      <ChartComponent data={resourceUsage} margin={{ top: 20, right: 30, left: 0, bottom: 60 }}>
-        <XAxis
-          dataKey="bookingDate"
-          angle={-45}
-          textAnchor="end"
-          height={80}
-          tick={{ fontSize: 12 }}
-        />
-        <YAxis tick={{ fontSize: 12 }} />
+      <BarChart {...commonProps}>
+        <XAxis {...xAxisProps} />
+        <YAxis {...yAxisProps} />
         <Tooltip content={<CustomTooltip />} />
         <Legend />
-        {chartType === 'line' && (
-          <>
-            <Line type="monotone" dataKey="totalActiveQuantity" stroke="#4CAF50" name="Active" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="totalUsedQuantity" stroke="#FF9800" name="Used" strokeWidth={2} dot={false} />
-          </>
-        )}
-        {chartType === 'area' && (
-          <>
-            <Area type="monotone" dataKey="totalActiveQuantity" stroke="#4CAF50" fill="#C8E6C9" name="Active" />
-            <Area type="monotone" dataKey="totalUsedQuantity" stroke="#FF9800" fill="#FFE0B2" name="Used" />
-          </>
-        )}
-        {chartType === 'bar' && (
-          <>
-            <Bar dataKey="totalActiveQuantity" fill="#4CAF50" name="Active" />
-            <Bar dataKey="totalUsedQuantity" fill="#FF9800" name="Used" />
-          </>
-        )}
-      </ChartComponent>
+        <Bar 
+          dataKey="totalActiveQuantity" 
+          fill="#4CAF50" 
+          name="Active Resource"
+          radius={[2, 2, 0, 0]}
+        />
+        <Bar 
+          dataKey="totalUsedQuantity" 
+          fill="#FF9800" 
+          name="Used Resource"
+          radius={[2, 2, 0, 0]}
+        />
+      </BarChart>
     );
   };
 
   return (
     <Box p={4} bgcolor="#f9f9f9" minHeight="100vh">
       <Typography variant="h4" fontWeight={700} color="primary" mb={2}>
-        Dashboard Overview
-      </Typography>
-      <Typography variant="subtitle1" color="textSecondary" mb={4}>
-        Visualize system metrics and usage trends
+        Dashboard 
       </Typography>
 
       <Grid container spacing={3} mb={4}>
         {[
           { label: 'Active Users', value: activeUsers, bg: '#3f51b5' },
-          { label: 'Total Active', value: totalActiveQuantity, bg: '#009688' },
-          { label: 'Total Used', value: totalUsedQuantity, bg: '#ff9800' },
-          { label: 'Utilization Rate', value: `${utilizationRate}%`, bg: '#4caf50' },
+          { label: 'Total Active Resource', value: totalActiveQuantity, bg: '#009688' },
+          { label: 'Total Used Resource', value: totalUsedQuantity, bg: '#ff9800' },
         ].map((stat, idx) => (
-          <Grid item xs={12} sm={6} md={3} key={idx}>
-            <Card sx={{ bgcolor: stat.bg, color: 'white', borderRadius: 2 }}>
-              <CardContent>
-                <Typography variant="subtitle2">{stat.label}</Typography>
-                <Typography variant="h5" fontWeight={700}>{stat.value}</Typography>
+          <Grid item xs={12} sm={4} md={4} lg={4} key={idx}>
+            <Card
+              sx={{
+                bgcolor: stat.bg,
+                color: 'white',
+                borderRadius: 3,
+                height: '100%',
+                boxShadow: 3,
+                transition: 'transform 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 6
+                }
+              }}
+            > 
+              <CardContent sx={{ py: 3 }}> 
+                <Typography variant="h6" fontWeight={500}>
+                  {stat.label}
+                </Typography>
+                <Typography variant="h4" fontWeight={700}>
+                  {stat.value.toLocaleString()}
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
 
-      <Card>
+      <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
         <CardContent>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
@@ -150,49 +252,51 @@ const DashboardPage: React.FC = () => {
             spacing={2}
             mb={3}
           >
-            <Typography variant="h6" fontWeight={600} color="primary">
-              Resource Usage
+            <Typography variant="h6" fontWeight={600} color="primary" sx={{ display: 'inline-flex', alignItems: 'center' }}>
+              <HistoryIcon sx={{ mr: 1 }} />
+              Resource Usage History
             </Typography>
+
             <Stack direction="row" spacing={2}>
               <FormControl size="small">
-                <InputLabel>Chart</InputLabel>
+                <InputLabel>Chart Type</InputLabel>
                 <Select
                   value={chartType}
-                  label="Chart"
+                  label="Chart Type"
                   onChange={(e) => setChartType(e.target.value as 'bar' | 'line' | 'area')}
                 >
-                  <MenuItem value="bar">Bar</MenuItem>
-                  <MenuItem value="line">Line</MenuItem>
-                  <MenuItem value="area">Area</MenuItem>
+                  <MenuItem value="bar">Bar Chart</MenuItem>
+                  <MenuItem value="line">Line Chart</MenuItem>
+                  <MenuItem value="area">Area Chart</MenuItem>
                 </Select>
               </FormControl>
               <FormControl size="small">
-                <InputLabel>Days</InputLabel>
-                <Select value={days} label="Days" onChange={(e) => setDays(Number(e.target.value))}>
-                  <MenuItem value={10}>10</MenuItem>
-                  <MenuItem value={30}>30</MenuItem>
-                  <MenuItem value={60}>60</MenuItem>
+                <InputLabel>Time Period</InputLabel>
+                <Select value={days} label="Time Period" onChange={(e) => setDays(Number(e.target.value))}>
+                  <MenuItem value={10}>Last 10 days</MenuItem>
+                  <MenuItem value={30}>Last 30 days</MenuItem>
+                  <MenuItem value={60}>Last 60 days</MenuItem>
                 </Select>
               </FormControl>
             </Stack>
           </Stack>
 
-          {loading ? (
-            <Box display="flex" justifyContent="center" alignItems="center" height={400}>
-              <CircularProgress size={50} />
+          {resourceUsage.length ? (
+            <Box sx={{ bgcolor: '#fafafa', borderRadius: 2, p: 2 }}>
+              <ResponsiveContainer width="100%" height={500}>
+                {renderChart()}
+              </ResponsiveContainer>
             </Box>
-          ) : resourceUsage.length ? (
-            <ResponsiveContainer width="100%" height={450}>
-              {renderChart()}
-            </ResponsiveContainer>
           ) : (
             <Box textAlign="center" py={10} color="text.secondary">
-              <Typography variant="h6">No data available</Typography>
-              <Typography variant="body2">Try adjusting the filters above</Typography>
+              <Typography variant="h6" gutterBottom>No data available</Typography>
+              <Typography variant="body2">Try adjusting the time period or check back later</Typography>
             </Box>
           )}
         </CardContent>
       </Card>
+
+      <Loader open={loading} />
     </Box>
   );
 };
