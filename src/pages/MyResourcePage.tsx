@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, TablePagination, IconButton, Typography, Box, TableSortLabel, Button,
-   Select, MenuItem, FormControl, InputLabel
+  Paper, TablePagination, Typography, Box, TableSortLabel, Button,
+   Select, MenuItem, FormControl
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import StorageIcon from '@mui/icons-material/Storage';
 import AddIcon from '@mui/icons-material/Add';
 import HistoryIcon from '@mui/icons-material/History';
-import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import { getActiveBookings, getBookingHistory, createBooking }from '../api/bookingApi';
 import type { CreateBookingPayload } from '../api/bookingApi';
 import { getUserIdFromToken } from "../helpers/authHelpers";
@@ -16,7 +14,6 @@ import { toast } from "react-toastify";
 import { debounce } from 'lodash';
 import BookingFormDialog from '../components/BookingFormDialog';
 import dayjs from "dayjs";
-import { da } from 'date-fns/locale';
 import Loader from '../components/Loader';
 
 interface Booking {
@@ -77,7 +74,6 @@ const MyResourcePage: React.FC = () => {
           delay(800) 
         ]);
 
-            console.log("dsdsdd",data.data)
           setBookings(data.data.data);
           setTotalBookings(data.data.totalCount);
         
@@ -233,7 +229,7 @@ const MyResourcePage: React.FC = () => {
         <Box sx={{ padding: 2, display: 'flex', gap: 1 }}>
           <Button
             variant={tab === 'active' ? 'contained' : 'outlined'}
-            startIcon={<EventAvailableIcon />}
+            startIcon={<StorageIcon />}
             onClick={() => { setTab('active'); setPage(0); }}
           >
             Active Resource
@@ -338,7 +334,6 @@ const MyResourcePage: React.FC = () => {
             toDate: dayjs(formData.toDate).format("YYYY-MM-DD"),
             userId: userId,
           };
-          console.log("payload",payload)
 
           handleBookingFormSubmit(payload);
         }}

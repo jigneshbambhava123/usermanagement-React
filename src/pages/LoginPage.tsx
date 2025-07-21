@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import type {FormikHelpers} from "formik";
 import * as Yup from "yup";
 import { loginUser } from "../api/authApi";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link , useLocation} from "react-router-dom";
 import { CandidateIcon } from "../assets/assets"; 
 import { toast } from "react-toastify";
 import { HeroImg } from "../assets/assets";
@@ -23,6 +23,7 @@ const LoginSchema = Yup.object().shape({
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
 
   const initialValues: ILoginRequest = {
@@ -42,7 +43,8 @@ const LoginPage = () => {
       const storage = values.rememberMe ? localStorage : sessionStorage;
       storage.setItem("jwt_token", token);
 
-      navigate("/users");
+      const from = location.state?.from?.pathname || "/dashboard";
+      navigate(from, { replace: true });
     } catch (err: any) {
       const errorMessage =
         err?.response?.data?.message || err?.message || "Login failed. Please check your credentials.";

@@ -139,7 +139,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
           onSubmit={handleSubmit}
           enableReinitialize
         >
-          {({ errors, touched, isSubmitting, setFieldValue }) => (
+          {({ errors, touched, setFieldValue }) => (
             <Form>
               <div className="space-y-4 mt-4">
                 {/* First Name */}

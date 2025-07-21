@@ -13,7 +13,6 @@ export function useSignalR(onQuantityUpdate: OnQuantityUpdate) {
       .build();
 
     connection.on('ReceiveQuantityUpdate', (resourceId: number, newAvailableQuantity: number) => {
-      console.log('Received update:', resourceId, newAvailableQuantity);
       onQuantityUpdate(resourceId, newAvailableQuantity);
     });
 

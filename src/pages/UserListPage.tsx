@@ -12,9 +12,7 @@ import type { User } from '../api/userApi';
 import { getUserRoles } from '../helpers/authHelpers';
 import { toast } from "react-toastify";
 import { debounce } from 'lodash';
-import PersonIcon from '@mui/icons-material/Person';
 import UserFormDialog from '../components/UserFormDialog'; 
-import { da } from 'date-fns/locale';
 import Loader from '../components/Loader';
 import { WarningIcon } from '../assets/assets';
 
@@ -138,12 +136,9 @@ const UserListPage: React.FC = () => {
         delay(800) 
       ]);
       
-      console.log(res.data)
       const { data, totalCount } = res.data;
       setUsers(data);
       setTotalUsers(totalCount);
-      console.log("data",data)
-      console.log("totalCount",totalCount)
 
     } catch (error) {
       toast.error("Failed to fetch users.");

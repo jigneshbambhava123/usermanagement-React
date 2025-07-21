@@ -7,12 +7,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  CircularProgress,
-  Grid,
   Card,
   CardContent,
-  Stack,
-  Chip,
+  Stack
 } from '@mui/material';
 import {
   BarChart,
@@ -27,7 +24,10 @@ import {
   AreaChart,
   Area,
 } from 'recharts';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import HistoryIcon from '@mui/icons-material/History';
+import PeopleIcon from '@mui/icons-material/People';
+import StorageIcon from '@mui/icons-material/Storage';
 import { getActiveUsersCount, getDailyResourceUsage } from '../api/dashboardApi';
 import type { DailyResourceUsage } from '../api/dashboardApi';
 import { getUserIdFromToken } from "../helpers/authHelpers";
@@ -192,12 +192,14 @@ const DashboardPage: React.FC = () => {
           fill="#4CAF50" 
           name="Active Resource"
           radius={[2, 2, 0, 0]}
+          barSize={50}
         />
         <Bar 
           dataKey="totalUsedQuantity" 
           fill="#FF9800" 
           name="Used Resource"
           radius={[2, 2, 0, 0]}
+          barSize={50}
         />
       </BarChart>
     );
@@ -209,13 +211,29 @@ const DashboardPage: React.FC = () => {
         Dashboard 
       </Typography>
 
-      <Grid container spacing={3} mb={4}>
+      <Box
+        mb={4}
+        display="flex"
+        flexWrap="wrap"
+        justifyContent="space-between"
+        gap={3}
+      >
         {[
-          { label: 'Active Users', value: activeUsers, bg: '#3f51b5' },
-          { label: 'Total Active Resource', value: totalActiveQuantity, bg: '#009688' },
-          { label: 'Total Used Resource', value: totalUsedQuantity, bg: '#ff9800' },
+          { label: 'Active Users', value: activeUsers, bg: '#3f51b5', icon: <PeopleIcon /> },
+          { label: 'Total Active Resource', value: totalActiveQuantity, bg: '#4CAF50', icon: <StorageIcon /> },
+          { label: 'Total Used Resource', value: totalUsedQuantity, bg: '#ff9800', icon: <AssignmentTurnedInIcon  /> },
         ].map((stat, idx) => (
-          <Grid item xs={12} sm={4} md={4} lg={4} key={idx}>
+          <Box
+            key={idx}
+            sx={{
+              flex: {
+                xs: '100%',
+                sm: '100%',
+                md: '30%',
+                lg: '30%',
+              },
+            }}
+          >
             <Card
               sx={{
                 bgcolor: stat.bg,
@@ -226,22 +244,25 @@ const DashboardPage: React.FC = () => {
                 transition: 'transform 0.2s ease-in-out',
                 '&:hover': {
                   transform: 'translateY(-4px)',
-                  boxShadow: 6
-                }
+                  boxShadow: 6,
+                },
               }}
-            > 
-              <CardContent sx={{ py: 3 }}> 
-                <Typography variant="h6" fontWeight={500}>
-                  {stat.label}
-                </Typography>
+            >
+              <CardContent sx={{ py: 3 }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                  <Typography variant="h6" fontWeight={500}>
+                    {stat.label}
+                  </Typography>
+                  {stat.icon}
+                </Box>
                 <Typography variant="h4" fontWeight={700}>
                   {stat.value.toLocaleString()}
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
         <CardContent>

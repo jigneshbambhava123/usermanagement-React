@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useMatch } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useMatch, useNavigate } from 'react-router-dom';
 import UserListPage from './pages/UserListPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -16,11 +16,13 @@ import ResourceListPage from './pages/ResourceListPage';
 import MyResourcePage from './pages/MyResourcePage';
 import DashboardPage from './pages/DashboardPage';
 import { releaseExpiredBookings } from './api/bookingApi'; 
+import ErrorBoundary from './components/ErrorBoundary';
 
 const AppRoutes = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
-   const hideNavbarRoutes = useMemo(() => [
+  const hideNavbarRoutes = useMemo(() => [
     '/', 
     '/register', 
     '/forgotpassword', 
@@ -38,7 +40,7 @@ const AppRoutes = () => {
   useEffect(() => {
     const token = getValidToken();
     if (token && isTokenExpired(token)) {
-      logout();
+      logout(navigate);
     }
     releaseExpiredBookings().catch(console.error);
 
@@ -101,7 +103,9 @@ const AppRoutes = () => {
 
 const App: React.FC = () => (
   <Router>
-    <AppRoutes />
+    <ErrorBoundary>
+      <AppRoutes />
+    </ErrorBoundary>
   </Router>
 );
 

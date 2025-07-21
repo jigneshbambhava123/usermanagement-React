@@ -114,7 +114,7 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
           onSubmit={handleSubmit}
           enableReinitialize
         >
-          {({ errors, touched, isSubmitting }) => (
+          {({ errors, touched }) => (
             <Form>
               <div className="space-y-4 mt-4">
                 {/* Name */}

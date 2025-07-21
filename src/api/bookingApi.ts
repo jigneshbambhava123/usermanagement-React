@@ -31,7 +31,6 @@ export const getActiveBookings = (params: {
     params,
   });
 
-
 export const getBookingHistory = (params: {
   userId?: number;
   search?: string;

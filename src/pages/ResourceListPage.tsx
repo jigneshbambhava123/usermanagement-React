@@ -7,7 +7,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { getResources,getfilterResources, createResource, updateResource, deleteResource,updateResourceField } from '../api/resourceApi';
+import { getfilterResources, createResource, updateResource, deleteResource,updateResourceField } from '../api/resourceApi';
 import type { Resource } from '../api/resourceApi';
 import { getUserRoles } from '../helpers/authHelpers';
 import { toast } from "react-toastify";
@@ -329,7 +329,7 @@ const ResourceListPage: React.FC = () => {
                     Quantity
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sortDirection={sortColumn === 'usedquantity' ? sortDirection : false}>
+                <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'usedquantity' ? sortDirection : false}>
                   <TableSortLabel
                     active={sortColumn === 'usedquantity'}
                     direction={sortColumn === 'usedquantity' ? sortDirection : 'asc'}

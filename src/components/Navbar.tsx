@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getUserRoles } from '../helpers/authHelpers'; 
 import { logout } from '../helpers/authHelpers';
 import './Navbar.css'
-import { CandidateIcon, HeroImg } from "../assets/assets"; 
+import { HeroImg } from "../assets/assets"; 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography } from '@mui/material';
 import { WarningIcon } from '../assets/assets';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
   const roles = getUserRoles();
+  const navigate = useNavigate();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
@@ -35,7 +36,7 @@ const Navbar: React.FC = () => {
   };
 
   const handleLogoutConfirm = () => {
-    logout();
+    logout(navigate); 
     setIsLogoutDialogOpen(false);
   };
 

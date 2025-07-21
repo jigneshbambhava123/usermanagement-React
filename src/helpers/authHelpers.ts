@@ -59,9 +59,10 @@ export const getUserIdFromToken = (): number | null => {
   }
 };
 
-export const logout = () => {
+export const logout = (navigate: (path: string) => void) => {
   localStorage.removeItem('jwt_token');
   sessionStorage.removeItem('jwt_token');
-  
-  window.location.href = '/'; 
+  localStorage.removeItem('return_url');
+
+  navigate("/");
 };
