@@ -5,7 +5,6 @@ import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { registerUser } from "../api/authApi"; 
-import { CandidateIcon } from "../assets/assets"; 
 import { HeroImg } from "../assets/assets";
 
 interface RegisterFormValues {
@@ -109,7 +108,7 @@ const RegisterPage = () => {
         {/* Header */}
         <div className="mb-6 text-center">
           <Link to="/Register" className="inline-flex items-center gap-2">
-            <img src={CandidateIcon} alt="logo" className="w-15 h-15" />
+            <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
             <h2 className="text-3xl font-bold text-[#00092a]">User Management</h2>
           </Link>
         </div>

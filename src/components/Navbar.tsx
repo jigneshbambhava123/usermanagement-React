@@ -5,7 +5,6 @@ import { logout } from '../helpers/authHelpers';
 import './Navbar.css'
 import { HeroImg } from "../assets/assets"; 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography } from '@mui/material';
-import { WarningIcon } from '../assets/assets';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
@@ -151,10 +150,9 @@ const Navbar: React.FC = () => {
           }}>Confirm Logout</DialogTitle>
         <DialogContent sx={{ pt: 5 }}>
           <Box display="flex" flexDirection="column" alignItems="center">
-            <img src={WarningIcon} alt="logo" className="w-15 h-15 mt-5" />
             <Typography
               id="confirm-dialog-description"
-              sx={{ pb: 5, fontSize: '1rem', color: '#333', textAlign: 'center' }}
+              sx={{pt:5, pb: 5, fontSize: '1rem', color: '#333', textAlign: 'center' }}
             >
               Are you sure you want to logout?
             </Typography>

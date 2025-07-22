@@ -38,7 +38,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  useSignalR((resourceId, newAvailableQuantity) => {
+  const onQuantityUpdate = useCallback((resourceId: number, newAvailableQuantity: number) => {
     setResources(prevResources =>
       prevResources.map(resource =>
         resource.id === resourceId
@@ -46,14 +46,16 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
           : resource
       )
     );
-  
+
     if (selectedResource?.id === resourceId) {
-      setSelectedResource(prev => prev ? { 
-        ...prev, 
-        usedQuantity: prev.quantity - newAvailableQuantity 
+      setSelectedResource(prev => prev ? {
+        ...prev,
+        usedQuantity: prev.quantity - newAvailableQuantity
       } : null);
     }
-  });
+  }, [selectedResource]); 
+
+  useSignalR(onQuantityUpdate);
 
   const fetchResources = useCallback(async () => {
     try {
@@ -182,7 +184,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
         borderTopLeftRadius: 12,
         borderTopRightRadius: 12,
       }}>
-        Add New Booking</DialogTitle>
+        Book Resource</DialogTitle>
       <DialogContent>
         <div className="space-y-4 mt-4">
           {/* Resource Select */}
@@ -205,10 +207,12 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
               onChange={handleResourceChange}
               className="focus:ring-2 focus:ring-blue-500"
             >
-              {resources.map((resource) => (
-                <MenuItem key={resource.id} value={resource.id}>
-                  {resource.name}
-                </MenuItem>
+              {resources
+                .filter(resource => resource.quantity - resource.usedQuantity > 0)
+                .map(resource => (
+                  <MenuItem key={resource.id} value={resource.id}>
+                    {resource.name}
+                  </MenuItem>
               ))}
             </Select>
             {errors.resourceId && (
@@ -334,7 +338,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
           Cancel
         </Button>
         <Button onClick={handleSubmit} color="primary" variant="contained">
-          Add Booking
+          Save
         </Button>
       </DialogActions>
     </Dialog>

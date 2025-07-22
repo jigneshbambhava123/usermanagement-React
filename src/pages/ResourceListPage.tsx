@@ -12,7 +12,6 @@ import type { Resource } from '../api/resourceApi';
 import { getUserRoles } from '../helpers/authHelpers';
 import { toast } from "react-toastify";
 import { debounce } from 'lodash';
-import { WarningIcon } from '../assets/assets';
 import * as Yup from 'yup';
 import ResourceFormDialog from '../components/ResourceFormDialog';
 import Loader from '../components/Loader';
@@ -138,7 +137,11 @@ const ResourceListPage: React.FC = () => {
         setIsFormOpen(false);
         fetchResources();
     } catch {
-        toast.error('Operation failed.');
+        if ('id' in data) {
+          toast.error('failed to update Resource.');
+        } else {
+          toast.error('failed to add Resource.');
+        }
     }
   };
 
@@ -455,10 +458,9 @@ const ResourceListPage: React.FC = () => {
         }}>Confirm Delete</DialogTitle>
         <DialogContent sx={{ pt: 5 }}>
           <Box display="flex" flexDirection="column" alignItems="center">
-            <img src={WarningIcon} alt="logo" className="w-15 h-15 mt-5" />
             <Typography
               id="confirm-dialog-description"
-              sx={{ pb: 5, fontSize: '1rem', color: '#333', textAlign: 'center' }}
+              sx={{ pt:5, pb: 5, fontSize: '1rem', color: '#333', textAlign: 'center' }}
             >
               Are you sure you want to delete this resource?
             </Typography>

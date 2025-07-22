@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { debounce } from 'lodash';
 import UserFormDialog from '../components/UserFormDialog'; 
 import Loader from '../components/Loader';
-import { WarningIcon } from '../assets/assets';
+import { getUserIdFromToken } from '../helpers/authHelpers';
 
 type AddUserFormData = Omit<User, 'id' | 'isActive'>;
 type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
@@ -78,10 +78,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, onClose, onConfirm,
 
       <DialogContent sx={{ pt: 5 }}>
         <Box display="flex" flexDirection="column" alignItems="center">
-          <img src={WarningIcon} alt="logo" className="w-15 h-15 mt-5" />
           <Typography
             id="confirm-dialog-description"
-            sx={{ pb: 5, fontSize: '1rem', color: '#333', textAlign: 'center' }}
+            sx={{ pt:5,pb: 5, fontSize: '1rem', color: '#333', textAlign: 'center' }}
           >
             {message}
           </Typography>
@@ -119,6 +118,7 @@ const UserListPage: React.FC = () => {
 
   const roles = getUserRoles();
   const isAdmin = roles.includes("Admin");
+  const loggedInUserId = getUserIdFromToken();
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -287,6 +287,7 @@ const UserListPage: React.FC = () => {
                 width: '100%',
               }}
             />
+
             {isAdmin && (
               <Button
                 variant="contained"
@@ -295,6 +296,17 @@ const UserListPage: React.FC = () => {
                 sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'140px'}}
               >
                 Add User
+              </Button>
+            )}
+
+            {isAdmin && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleAddUser}
+                sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'200px'}}
+              >
+                Bulk Insertion User
               </Button>
             )}
           </Box>
@@ -352,9 +364,11 @@ const UserListPage: React.FC = () => {
                         <IconButton onClick={() => handleEdit(user)} color="primary">
                           <EditIcon />
                         </IconButton>
-                        <IconButton onClick={() => handleDeleteClick(user.id)} color="error"> {/* Changed to handleDeleteClick */}
-                          <DeleteIcon />
-                        </IconButton>
+                        {user.id !== loggedInUserId && (
+                          <IconButton onClick={() => handleDeleteClick(user.id)} color="error">
+                            <DeleteIcon />
+                          </IconButton>
+                        )}
                       </TableCell>
                     )}
                   </TableRow>

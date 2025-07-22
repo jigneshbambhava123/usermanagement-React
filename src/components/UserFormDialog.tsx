@@ -6,6 +6,7 @@ import type { SelectChangeEvent } from '@mui/material/Select';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import type { User } from '../api/userApi';
+import { getUserIdFromToken } from '../helpers/authHelpers';
 
 type AddUserFormData = Omit<User, 'id' | 'isActive'>;
 type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
@@ -19,6 +20,7 @@ interface UserFormDialogProps {
 
 const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, onSubmit }) => {
   const isEditMode = Boolean(user);
+  const loggedInUserId = getUserIdFromToken();
 
   const initialFormikValues = {
     firstname: user?.firstname || '',
@@ -257,6 +259,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                     id="roleId"
                     name="roleId"
                     label="Role"
+                    disabled={isEditMode && user?.id === loggedInUserId}
                     onChange={(event: SelectChangeEvent<number>) => {
                       setFieldValue('roleId', event.target.value);
                     }}

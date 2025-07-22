@@ -4,7 +4,6 @@ import type {FormikHelpers} from "formik";
 import * as Yup from "yup";
 import { loginUser } from "../api/authApi";
 import { useNavigate, Link , useLocation} from "react-router-dom";
-import { CandidateIcon } from "../assets/assets"; 
 import { toast } from "react-toastify";
 import { HeroImg } from "../assets/assets";
  
@@ -71,7 +70,7 @@ const LoginPage = () => {
         {/* Logo/Header */}
         <div className="mb-6 text-center">
           <Link to="/" className="inline-flex items-center gap-2">
-            <img src={CandidateIcon} alt="logo" className="w-15 h-15" />
+            <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
             <h2 className="text-3xl font-bold text-[#00092a]">User Management</h2>
           </Link>
         </div>
