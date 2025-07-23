@@ -15,6 +15,7 @@ import { debounce } from 'lodash';
 import UserFormDialog from '../components/UserFormDialog'; 
 import Loader from '../components/Loader';
 import { getUserIdFromToken } from '../helpers/authHelpers';
+import BulkUserInsertionDialog from '../components/BulkUserInsertionDialog';
 
 type AddUserFormData = Omit<User, 'id' | 'isActive'>;
 type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
@@ -115,6 +116,8 @@ const UserListPage: React.FC = () => {
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [userToDeleteId, setUserToDeleteId] = useState<number | null>(null);
+
+  const [openDialog, setOpenDialog] = useState(false);
 
   const roles = getUserRoles();
   const isAdmin = roles.includes("Admin");
@@ -226,7 +229,7 @@ const UserListPage: React.FC = () => {
       setIsFormOpen(false); 
       fetchUsers();
     } catch (error) {
-      toast.error(`Failed to ${'id' in userData ? 'update' : 'add'} user.`);
+      toast.error(`Check User Detail.`);
       console.error('Form submission error:', error);
     }
   };
@@ -299,16 +302,12 @@ const UserListPage: React.FC = () => {
               </Button>
             )}
 
-            {isAdmin && (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleAddUser}
-                sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'200px'}}
-              >
-                Bulk Insertion User
-              </Button>
-            )}
+            <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)} style={{ height: '42px',minWidth:'180px' }}>
+              Bulk Add User
+            </Button>
+            <BulkUserInsertionDialog open={openDialog} onClose={() => setOpenDialog(false)} onSubmit={() => {
+                  fetchUsers();
+              }}/>
           </Box>
         </Box>
 

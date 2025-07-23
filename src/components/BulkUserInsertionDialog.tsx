@@ -1,0 +1,181 @@
+import React, { useState } from 'react';
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, Box, Table, TableHead, TableRow,
+  TableCell, TableBody, TableContainer
+} from '@mui/material';
+import { toast } from 'react-toastify';
+import type { User } from '../api/userApi';
+import api from '../api/axiosInstance';
+ 
+interface BulkUserUploadDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: () => void;
+}
+ 
+const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClose, onSubmit }) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [successUsers, setSuccessUsers] = useState<User[]>([]);
+  const [errorUsers, setErrorUsers] = useState<{ user: User; reason: string }[]>([]);
+  const [activeTab, setActiveTab] = useState<'success' | 'error' | null>(null);
+ 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.name.endsWith('.xlsx')) {
+      setSelectedFile(file);
+    } else {
+      toast.warning('Please select Excel File.');
+      setSelectedFile(null);
+    }
+  };
+ 
+  const handleProcess = async () => {
+    if (!selectedFile) {
+      toast.warning('Please select Excel File.');
+      return;
+    }
+ 
+    try {
+        const formData = new FormData();
+        formData.append('file', selectedFile); 
+    
+        const response = await api.post('/User/BulkInsertionUser', formData);
+        console.log(response.data);
+        setSuccessUsers(response.data.successList);
+        setErrorUsers(response.data.errorList);
+        onSubmit(); 
+        toast.success('user process complete!');
+        setActiveTab('success');
+    } catch (error) {
+      console.error(error);
+      toast.error('some error occur');
+    } 
+  };
+ 
+  const handleClose = () => {
+    setSelectedFile(null);
+    setSuccessUsers([]);
+    setErrorUsers([]);
+    setActiveTab(null);
+    onClose();
+  };
+ 
+  return (
+    <Dialog open={open} onClose={handleClose} fullWidth>
+      <DialogTitle
+      className="text-xl font-bold text-center text-white"
+      sx={{
+          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
+        }}
+      >Bulk Add User</DialogTitle>
+      <DialogContent >
+        <input className='mt-4 mb-4' type="file" onChange={handleFileChange} />
+ 
+        {(successUsers.length > 0 || errorUsers.length > 0) && (
+          <Box mt={2}>
+            <Button
+              variant={activeTab === 'success' ? 'contained' : 'outlined'}
+              color="success"
+              onClick={() => setActiveTab('success')}
+              sx={{ mr: 2 }}
+            >
+              Show Success Records
+            </Button>
+            <Button
+              variant={activeTab === 'error' ? 'contained' : 'outlined'}
+              color="error"
+              onClick={() => setActiveTab('error')}
+            >
+              Show Error Records
+            </Button>
+          </Box>
+        )}
+ 
+        {activeTab === 'success'  && (
+          <Box mt={3}>
+            <TableContainer  sx={{ maxHeight: 300 }}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>First Name</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Last Name</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Password</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Phone Number</TableCell>
+                  <TableCell>Role</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Date of Birth</TableCell>
+                </TableRow>
+              </TableHead>
+             <TableBody>
+                {successUsers.map((user, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{user.firstname}</TableCell>
+                    <TableCell>{user.lastname}</TableCell>
+                    <TableCell> {user.email}</TableCell>
+                    <TableCell>{user.password}</TableCell>
+                    <TableCell>{user.phoneNumber}</TableCell>
+                    <TableCell>{user.roleId === 1 ? 'Admin' : 'User'}</TableCell>
+                    <TableCell>{new Date(user.dateofbirth).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            </TableContainer>
+          </Box>
+        )}
+ 
+        {activeTab === 'error' && (
+          <Box mt={3}>
+            <TableContainer  sx={{ maxHeight: 300 }}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                    <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>First Name</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Last Name</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Password</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Phone Number</TableCell>
+                  <TableCell>Role</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Date of Birth</TableCell>
+                  <TableCell>Reason</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {errorUsers.map((item, index) => (
+                  <TableRow >
+                    <TableCell>{item.user.firstname}</TableCell>
+                    <TableCell>{item.user.lastname}</TableCell>
+                    <TableCell> {item.user.email}</TableCell>
+                    <TableCell>{item.user.password}</TableCell>
+                    <TableCell>{item.user.phoneNumber}</TableCell>  
+                    <TableCell>{item.user.roleId === 1 ? 'Admin' : 'User'}</TableCell>
+                    <TableCell>{new Date(item.user.dateofbirth).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                        {item.errors}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            </TableContainer>
+          </Box>
+        )}
+      </DialogContent>
+ 
+      <DialogActions>
+        <Button onClick={handleClose} variant="outlined">
+          Close
+        </Button>
+        <Button
+          onClick={handleProcess}
+          variant="contained"
+        >
+          Process
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+ 
+export default BulkUserUploadDialog;
