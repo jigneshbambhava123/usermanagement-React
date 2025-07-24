@@ -219,7 +219,7 @@ const DashboardPage: React.FC = () => {
         gap={3}
       >
         {[
-          { label: 'Active Users', value: activeUsers, bg: '#3f51b5', icon: <PeopleIcon /> },
+          { label: 'Active Users', value: activeUsers, bg: '#8f9bdfff', icon: <PeopleIcon /> },
           { label: 'Total Active Resource', value: totalActiveQuantity, bg: '#4CAF50', icon: <StorageIcon /> },
           { label: 'Total Used Resource', value: totalUsedQuantity, bg: '#ff9800', icon: <AssignmentTurnedInIcon  /> },
         ].map((stat, idx) => (
