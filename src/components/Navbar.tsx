@@ -132,21 +132,11 @@ const Navbar: React.FC = () => {
         onClose={handleLogoutCancel}
         aria-labelledby="logout-dialog-title"
         maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            p: 2,
-          },
-        }}>
+        fullWidth>
         <DialogTitle id="logout-dialog-title"
           className="text-xl font-bold text-center text-white"
           sx={{
-            background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)',
-            py: 2,
-            px: 3,
-            borderTopLeftRadius: 12,
-            borderTopRightRadius: 12,
+            background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
           }}>Confirm Logout</DialogTitle>
         <DialogContent sx={{ pt: 5 }}>
           <Box display="flex" flexDirection="column" alignItems="center">

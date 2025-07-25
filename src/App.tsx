@@ -17,6 +17,41 @@ import MyResourcePage from './pages/MyResourcePage';
 import DashboardPage from './pages/DashboardPage';
 import { releaseExpiredBookings } from './api/bookingApi'; 
 import ErrorBoundary from './components/ErrorBoundary';
+import { createTheme,ThemeProvider  } from '@mui/material'; 
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2', 
+    },
+    error: {
+      main: '#d32f2f', 
+    },
+    success: {
+      main: '#2e7d32', 
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "none"
+        }
+      }
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        head: {
+          backgroundColor:"#2b88e6ff",
+          backgroundImage: `linear-gradient(135deg, #667eea 0%, #2575ee 100%)`,
+          fontWeight:"bold",
+          color:"white",
+        }
+      }
+    },
+    
+  }
+});
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -36,6 +71,8 @@ const AppRoutes = () => {
   ].includes(location.pathname.toLowerCase());
 
   const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname.toLowerCase()) || is404;
+
+  
 
   useEffect(() => {
     const token = getValidToken();
@@ -104,7 +141,9 @@ const AppRoutes = () => {
 const App: React.FC = () => (
   <Router>
     <ErrorBoundary>
-      <AppRoutes />
+      <ThemeProvider theme={theme}>
+        <AppRoutes />
+      </ThemeProvider>
     </ErrorBoundary>
   </Router>
 );

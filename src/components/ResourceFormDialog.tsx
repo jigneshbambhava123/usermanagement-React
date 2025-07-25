@@ -89,21 +89,11 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
       aria-labelledby="resource-dialog-title"
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 3,
-          p: 2,
-        },
-      }}
     >
       <DialogTitle id="resource-dialog-title" 
         className="text-xl font-bold text-center text-white"
         sx={{
-          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)',
-          py: 2,
-          px: 3,
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12,
+          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
         }}>
         {isEditMode ? 'Edit Resource' : 'Add New Resource'}
       </DialogTitle>

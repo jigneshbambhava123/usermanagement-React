@@ -246,20 +246,19 @@ const ResourceListPage: React.FC = () => {
 
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+    <Box sx={{ width: '100%',p: 4 }}>
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
+            flexDirection: { xs: 'column',sm: 'column', md: 'row' },
             justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', sm: 'center' },
-            p: 2,
-            gap: 2,
+            alignItems: { xs: 'flex-start', sm: 'flex-start', md: 'center' },
+            pb:4,
+            gap: 2
           }}
         >
           <Typography
-            variant="h5"
+            variant="h4"
             sx={{
               fontWeight: 600,
               color: '#1976d2',
@@ -295,6 +294,7 @@ const ResourceListPage: React.FC = () => {
 
             {isAdmin && (
               <Button
+                color="primary"
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleAddResource}
@@ -308,127 +308,128 @@ const ResourceListPage: React.FC = () => {
             )}
           </Box>
         </Box>
-
-        <TableContainer>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell sortDirection={sortColumn === 'name' ? sortDirection : false}>
-                  <TableSortLabel
-                    active={sortColumn === 'name'}
-                    direction={sortColumn === 'name' ? sortDirection : 'asc'}
-                    onClick={() => handleSortClick('name')}
-                  >
-                    Name
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell sortDirection={sortColumn === 'quantity' ? sortDirection : false}>
-                  <TableSortLabel
-                    active={sortColumn === 'quantity'}
-                    direction={sortColumn === 'quantity' ? sortDirection : 'asc'}
-                    onClick={() => handleSortClick('quantity')}
-                  >
-                    Quantity
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'usedquantity' ? sortDirection : false}>
-                  <TableSortLabel
-                    active={sortColumn === 'usedquantity'}
-                    direction={sortColumn === 'usedquantity' ? sortDirection : 'asc'}
-                    onClick={() => handleSortClick('usedquantity')}
-                  >
-                    Booked Quantity
-                  </TableSortLabel>
-                </TableCell>
-                {isAdmin && <TableCell>Actions</TableCell>}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {resources?.length > 0 ? (
-                resources.map(resource => (
-                  <TableRow key={resource.id}>
-                    <TableCell onClick={() => handleCellClick(resource.id, 'name', resource.name)}>
-                      {isAdmin && editingCell?.id === resource.id && editingCell.field === 'name' ? (
-                        <TextField
-                          value={editedValue}
-                          onChange={handleFieldChange}
-                          onBlur={handleBlur}
-                          onKeyPress={handleKeyPress}
-                          autoFocus
-                          size="small"
-                          fullWidth
-                        />
-                      ) : (
-                        resource.name
-                      )}
-                    </TableCell>
-                    <TableCell onClick={() => handleCellClick(resource.id, 'description', resource.description || '')}>
-                      {isAdmin && editingCell?.id === resource.id && editingCell.field === 'description' ? (
-                        <TextField
-                          value={editedValue}
-                          onChange={handleFieldChange}
-                          onBlur={handleBlur}
-                          onKeyPress={handleKeyPress}
-                          autoFocus
-                          size="small"
-                          fullWidth
-                        />
-                      ) : (
-                        resource.description || "-"
-                      )}
-                    </TableCell>
-                    <TableCell onClick={() => handleCellClick(resource.id, 'quantity', resource.quantity)}>
-                      {isAdmin && editingCell?.id === resource.id && editingCell.field === 'quantity' ? (
-                        <TextField
-                          type="number"
-                          value={editedValue}
-                          onChange={handleFieldChange}
-                          onBlur={handleBlur}
-                          onKeyPress={handleKeyPress}
-                          autoFocus
-                          size="small"
-                          fullWidth
-                        />
-                      ) : (
-                        resource.quantity
-                      )}
-                    </TableCell>
-                    <TableCell>{resource.usedQuantity}</TableCell>
-                    {isAdmin && (
-                      <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }}>
-                        <IconButton onClick={() => handleEditResource(resource)} color="primary" >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton color="error" onClick={() => handleDeleteClick(resource.id)}>
-                          <DeleteIcon />
-                        </IconButton>
+        
+        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+          <TableContainer>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell sortDirection={sortColumn === 'name' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'name'}
+                      direction={sortColumn === 'name' ? sortDirection : 'asc'}
+                      onClick={() => handleSortClick('name')}
+                    >
+                      Name
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell sortDirection={sortColumn === 'quantity' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'quantity'}
+                      direction={sortColumn === 'quantity' ? sortDirection : 'asc'}
+                      onClick={() => handleSortClick('quantity')}
+                    >
+                      Quantity
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden' }} sortDirection={sortColumn === 'usedquantity' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'usedquantity'}
+                      direction={sortColumn === 'usedquantity' ? sortDirection : 'asc'}
+                      onClick={() => handleSortClick('usedquantity')}
+                    >
+                      Booked Quantity
+                    </TableSortLabel>
+                  </TableCell>
+                  {isAdmin && <TableCell>Actions</TableCell>}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {resources?.length > 0 ? (
+                  resources.map(resource => (
+                    <TableRow key={resource.id}>
+                      <TableCell onClick={() => handleCellClick(resource.id, 'name', resource.name)}>
+                        {isAdmin && editingCell?.id === resource.id && editingCell.field === 'name' ? (
+                          <TextField
+                            value={editedValue}
+                            onChange={handleFieldChange}
+                            onBlur={handleBlur}
+                            onKeyPress={handleKeyPress}
+                            autoFocus
+                            size="small"
+                            fullWidth
+                          />
+                        ) : (
+                          resource.name
+                        )}
                       </TableCell>
-                    )}
-                  </TableRow>
-                ))
-              ) : (
-                !loading && (
-                  <TableRow>
-                    <TableCell colSpan={isAdmin ? 5 : 4} align="center">
-                      No resources found.
-                    </TableCell>
-                  </TableRow>
-                )
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={total}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
+                      <TableCell onClick={() => handleCellClick(resource.id, 'description', resource.description || '')}>
+                        {isAdmin && editingCell?.id === resource.id && editingCell.field === 'description' ? (
+                          <TextField
+                            value={editedValue}
+                            onChange={handleFieldChange}
+                            onBlur={handleBlur}
+                            onKeyPress={handleKeyPress}
+                            autoFocus
+                            size="small"
+                            fullWidth
+                          />
+                        ) : (
+                          resource.description || "-"
+                        )}
+                      </TableCell>
+                      <TableCell onClick={() => handleCellClick(resource.id, 'quantity', resource.quantity)}>
+                        {isAdmin && editingCell?.id === resource.id && editingCell.field === 'quantity' ? (
+                          <TextField
+                            type="number"
+                            value={editedValue}
+                            onChange={handleFieldChange}
+                            onBlur={handleBlur}
+                            onKeyPress={handleKeyPress}
+                            autoFocus
+                            size="small"
+                            fullWidth
+                          />
+                        ) : (
+                          resource.quantity
+                        )}
+                      </TableCell>
+                      <TableCell>{resource.usedQuantity}</TableCell>
+                      {isAdmin && (
+                        <TableCell align="center" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }}>
+                          <IconButton onClick={() => handleEditResource(resource)} color="primary" >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton color="error" onClick={() => handleDeleteClick(resource.id)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
+                ) : (
+                  !loading && (
+                    <TableRow>
+                      <TableCell colSpan={isAdmin ? 5 : 4} align="center">
+                        No resources found.
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={total}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Paper>
 
       <ResourceFormDialog
         open={isFormOpen}
@@ -439,22 +440,12 @@ const ResourceListPage: React.FC = () => {
 
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}
         maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            p: 2,
-          },
-        }}>
+        fullWidth>
         <DialogTitle
         id="confirm-dialog-title"
         className="text-xl font-bold text-center text-white"
         sx={{
-          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)',
-          py: 2,
-          px: 3,
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12,
+          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
         }}>Confirm Delete</DialogTitle>
         <DialogContent sx={{ pt: 5 }}>
           <Box display="flex" flexDirection="column" alignItems="center">
@@ -471,7 +462,7 @@ const ResourceListPage: React.FC = () => {
             Cancel
           </Button>
           <Button onClick={confirmDelete} color="error" variant="contained" autoFocus>
-            Confirm
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

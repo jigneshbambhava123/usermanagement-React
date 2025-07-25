@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, TablePagination, Typography, Box, TableSortLabel, Button,
-   Select, MenuItem, FormControl
+   Select, MenuItem, FormControl,IconButton
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import StorageIcon from '@mui/icons-material/Storage';
 import AddIcon from '@mui/icons-material/Add';
 import HistoryIcon from '@mui/icons-material/History';
@@ -15,6 +16,7 @@ import { debounce } from 'lodash';
 import BookingFormDialog from '../components/BookingFormDialog';
 import dayjs from "dayjs";
 import Loader from '../components/Loader';
+import EditToDateDialog from '../components/EditToDateDialog';
 
 interface Booking {
   id: number;
@@ -40,8 +42,10 @@ const MyResourcePage: React.FC = () => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [sortColumn, setSortColumn] = useState<SortColumn>('fromDate'); 
   const [dateFilter, setDateFilter] = useState<DateFilter>('allTime');
+  const [editBooking, setEditBooking] = useState<Booking | null>(null);
 
   const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
+  const [isEditToDateOpen, setIsEditToDateOpen] = useState(false);
 
   const userId = getUserIdFromToken();
 
@@ -132,6 +136,16 @@ const MyResourcePage: React.FC = () => {
     setIsBookingFormOpen(true);
   };
 
+  const handleEditToDate = (booking: Booking) => {
+    setEditBooking(booking);
+    setIsEditToDateOpen(true);
+  };
+
+  const handleCloseEditToDate = () => {
+    setEditBooking(null);
+    setIsEditToDateOpen(false);
+  };
+
   const handleBookingFormSubmit = async (formData: CreateBookingPayload) => {
     if (!userId) {
       toast.error("User not authenticated.");
@@ -155,22 +169,21 @@ const MyResourcePage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+    <Box sx={{ width: '100%',p: 4 }}>
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
+            flexDirection: { xs: 'column',sm: 'column', md: 'row' },
             justifyContent: 'space-between',
-            alignItems: { xs: 'stretch', sm: 'center' },
-            padding: 2,
+            alignItems: { xs: 'flex-start', sm: 'flex-start', md: 'center' },
+            pb:3,
             gap: 2
           }}
         >
           <Typography
-            variant="h5"
+            variant="h4"
             sx={{
-              fontWeight: 600,
+              fontWeight: 700,
               color: '#1976d2',
               display: 'flex',
               alignItems: 'center',
@@ -198,7 +211,6 @@ const MyResourcePage: React.FC = () => {
                 padding: '8px',
                 borderRadius: '4px',
                 border: '1px solid #ccc',
-                width: '100%',
               }}
             />
             <FormControl sx={{ minWidth: 130 }}>
@@ -216,6 +228,7 @@ const MyResourcePage: React.FC = () => {
               </Select>
             </FormControl>
             <Button
+              color="primary"
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleAddBooking}
@@ -226,7 +239,7 @@ const MyResourcePage: React.FC = () => {
           </Box>
         </Box>
 
-        <Box sx={{ padding: 2, display: 'flex', gap: 1 }}>
+        <Box sx={{ pb:3, display: 'flex', gap: 1 }}>
           <Button
             variant={tab === 'active' ? 'contained' : 'outlined'}
             startIcon={<StorageIcon />}
@@ -243,80 +256,90 @@ const MyResourcePage: React.FC = () => {
           </Button>
         </Box>
 
-        <TableContainer>
-          <Table stickyHeader aria-label="booking table">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 150 }} sortDirection={sortColumn === 'resourceName' ? sortDirection : false}>
-                  <TableSortLabel
-                    active={sortColumn === 'resourceName'}
-                    direction={sortColumn === 'resourceName' ? sortDirection : 'asc'}
-                    onClick={() => handleSortClick('resourceName')}
-                  >
-                    Resource
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sortDirection={sortColumn === 'quantity' ? sortDirection : false}>
-                  <TableSortLabel
-                    active={sortColumn === 'quantity'}
-                    direction={sortColumn === 'quantity' ? sortDirection : 'asc'}
-                    onClick={() => handleSortClick('quantity')}
-                  >
-                    Quantity
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'fromDate' ? sortDirection : false}>
-                  <TableSortLabel
-                    active={sortColumn === 'fromDate'}
-                    direction={sortColumn === 'fromDate' ? sortDirection : 'asc'}
-                    onClick={() => handleSortClick('fromDate')}
-                  >
-                    From Date
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'toDate' ? sortDirection : false}>
-                  <TableSortLabel
-                    active={sortColumn === 'toDate'}
-                    direction={sortColumn === 'toDate' ? sortDirection : 'asc'}
-                    onClick={() => handleSortClick('toDate')}
-                  >
-                    To Date
-                  </TableSortLabel>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {bookings?.length > 0 ? (
-                bookings.map((booking) => (
-                  <TableRow hover key={booking.id}>
-                    <TableCell>{booking.resourceName}</TableCell>
-                    <TableCell>{booking.quantity}</TableCell>
-                    <TableCell>{new Date(booking.fromDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(booking.toDate).toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                !loading && (
-                  <TableRow>
-                    <TableCell colSpan={4} align="center">
-                      No resources found.
-                    </TableCell>
-                  </TableRow>
-                )
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={totalBookings}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
+        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+          <TableContainer>
+            <Table stickyHeader aria-label="booking table">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 150 }} sortDirection={sortColumn === 'resourceName' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'resourceName'}
+                      direction={sortColumn === 'resourceName' ? sortDirection : 'asc'}
+                      onClick={() => handleSortClick('resourceName')}
+                    >
+                      Resource
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sortDirection={sortColumn === 'quantity' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'quantity'}
+                      direction={sortColumn === 'quantity' ? sortDirection : 'asc'}
+                      onClick={() => handleSortClick('quantity')}
+                    >
+                      Quantity
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'fromDate' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'fromDate'}
+                      direction={sortColumn === 'fromDate' ? sortDirection : 'asc'}
+                      onClick={() => handleSortClick('fromDate')}
+                    >
+                      From Date
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'toDate' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'toDate'}
+                      direction={sortColumn === 'toDate' ? sortDirection : 'asc'}
+                      onClick={() => handleSortClick('toDate')}
+                    >
+                      To Date
+                    </TableSortLabel>
+                  </TableCell>
+                  {tab === 'active' && <TableCell>Actions</TableCell>}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {bookings?.length > 0 ? (
+                  bookings.map((booking) => (
+                    <TableRow hover key={booking.id}>
+                      <TableCell>{booking.resourceName}</TableCell>
+                      <TableCell>{booking.quantity}</TableCell>
+                      <TableCell>{new Date(booking.fromDate).toLocaleDateString()}</TableCell>
+                      <TableCell>{new Date(booking.toDate).toLocaleDateString()}</TableCell>
+                      {tab === 'active' && (
+                        <TableCell align="center">
+                          <IconButton onClick={() =>  handleEditToDate(booking)} color="primary" >
+                            <EditIcon />
+                          </IconButton>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
+                ) : (
+                  !loading && (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center">
+                        No resources found.
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={totalBookings}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Paper>
+
       {/* Booking Form Dialog */}
       <BookingFormDialog
         open={isBookingFormOpen}
@@ -337,6 +360,14 @@ const MyResourcePage: React.FC = () => {
 
           handleBookingFormSubmit(payload);
         }}
+      />
+
+      <EditToDateDialog
+        open={isEditToDateOpen}
+        currentToDate={editBooking?.toDate || ''}
+        bookingId={editBooking?.id || 0}
+        onClose={handleCloseEditToDate}
+        onSuccess={() => fetchBookings()} 
       />
 
       <Loader open={loading} />

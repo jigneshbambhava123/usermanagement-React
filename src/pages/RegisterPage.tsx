@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import type {FormikHelpers} from "formik";
+import { TextField } from '@mui/material';
 import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -189,17 +190,23 @@ const RegisterPage = () => {
               <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-xs" />
 
               {/* DOB */}
-              <Field
-                type="date"
-                name="dateofbirth"
-                max={new Date().toISOString().split("T")[0]}
-                className={`w-full p-3 border ${
-                  errors.dateofbirth && touched.dateofbirth
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
-                } rounded-lg focus:outline-none focus:ring-2 transition duration-200`}
-              />
-              <ErrorMessage name="dateofbirth" component="div" className="text-red-500 text-xs" />
+              <Field name="dateofbirth"> 
+                {({ field, meta }: any) => (
+                  <TextField
+                    {...field}
+                    type="date"
+                    label="Date of Birth"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }} 
+                    inputProps={{
+                      max: new Date().toISOString().split("T")[0],
+                    }}
+                    error={meta.touched && Boolean(meta.error)}
+                    helperText={meta.touched && meta.error}
+                    sx={{mb:2}}
+                  />
+                )}
+              </Field>
 
               {/* Password */}
               <div className="relative">

@@ -25,7 +25,7 @@ const getRoleName = (roleId: number) => {
 const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClose, onSubmit }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [successUsers, setSuccessUsers] = useState<User[]>([]);
-  const [errorUsers, setErrorUsers] = useState<{ user: User; reason: string }[]>([]);
+  const [errorUsers, setErrorUsers] = useState<{ user: User; errors: string }[]>([]);
   const [activeTab, setActiveTab] = useState<'success' | 'error' | null>(null);
  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +60,7 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
       toast.error('some error occur');
     } 
   };
- 
+
   const handleClose = () => {
     setSelectedFile(null);
     setSuccessUsers([]);
@@ -78,7 +78,11 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
         }}
       >Bulk Add User</DialogTitle>
       <DialogContent >
-        <input className='mt-4 mb-4 border p-2' type="file" onChange={handleFileChange} />
+
+        <Box mt={2} mb={2} className="flex flex-col gap-2">
+          <label className="font-bold text-gray-700">Upload Excel File:</label>
+          <input className="p-2 border border-gray-300 rounded text-sm" type="file" onChange={handleFileChange} />
+        </Box>
  
         {(successUsers.length > 0 || errorUsers.length > 0) && (
           <Box mt={2}>
@@ -168,14 +172,14 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
                     <TableCell>{item.user.phoneNumber}</TableCell>  
                     <TableCell>{getRoleName(item.user.roleId)}</TableCell>
                     <TableCell>{new Date(item.user.dateofbirth).toLocaleDateString()}</TableCell>
-                    <TableCell>
+                    <TableCell sx={{ minWidth: 180,color:'red', fontWeight:'bold' }}>
                         {item.errors}
                     </TableCell>
                   </TableRow>
                 ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} align="center">
+                    <TableCell colSpan={8} align="center">
                       No users found.
                     </TableCell>
                   </TableRow>
@@ -192,7 +196,6 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
           Close
         </Button>
         <Button
-          color='primary'
           onClick={handleProcess}
           variant="contained"
         >

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl, InputLabel, Select, MenuItem,
+  Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl, InputLabel, Select, MenuItem,TextField
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -113,23 +113,12 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
       aria-labelledby="form-dialog-title"
       maxWidth="sm"
       fullWidth
-      // PaperProps={{ sx: { maxWidth: 600 } }} 
-      PaperProps={{
-        sx: {
-          borderRadius: 3,
-          p: 2,
-        },
-      }}
     >
       <DialogTitle
         id="form-dialog-title"
         className="text-xl font-bold text-center text-white"
         sx={{
-          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)',
-          py: 2,
-          px: 3,
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12,
+          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
         }}      >
         {isEditMode ? 'Edit User' : 'Add New User'}
       </DialogTitle>
@@ -275,28 +264,35 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                 </FormControl>
 
                 {/* Date of Birth - only if add mode */}
+                
                 {!isEditMode && (
                   <div className="mt-4">
-                    <Field
-                      type="date"
-                      name="dateofbirth"
-                      max={maxDate}
-                      className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-200 ${
-                        errors.dateofbirth && touched.dateofbirth
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-blue-500"
-                      }`}
-                    />
-                    <ErrorMessage
-                      name="dateofbirth"
-                      component="div"
-                      className="text-red-500 text-xs mt-1"
-                    />
+                    <Field name="dateofbirth">
+                      {({ field, meta }: any) => (
+                        <TextField
+                          {...field}
+                          label="Date of Birth"
+                          type="date"
+                          fullWidth
+                          max={new Date().toISOString().split('T')[0]}
+                          InputLabelProps={{
+                            shrink: true, 
+                          }}
+                          inputProps={{
+                            max: new Date().toISOString().split("T")[0],
+                          }}
+                          error={meta.touched && Boolean(meta.error)}
+                          helperText={meta.touched && meta.error}
+                        />
+                      )}
+                    </Field>
                   </div>
                 )}
               </div>
 
-              <DialogActions>
+              <DialogActions  sx={{
+                backgroundColor: 'white'
+              }}>
                 <Button onClick={onClose} color="primary" variant="outlined">
                   Cancel
                 </Button>

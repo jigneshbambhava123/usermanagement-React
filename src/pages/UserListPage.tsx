@@ -56,22 +56,12 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, onClose, onConfirm,
       aria-describedby="confirm-dialog-description"
       maxWidth="xs"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 3,
-          p: 2,
-        },
-      }}
     >
       <DialogTitle
         id="confirm-dialog-title"
         className="text-xl font-bold text-center text-white"
         sx={{
-          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)',
-          py: 2,
-          px: 3,
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12,
+          background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
         }}
       >
         {title}
@@ -93,7 +83,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, onClose, onConfirm,
           Cancel
         </Button>
         <Button onClick={onConfirm} color="error" variant="contained" autoFocus>
-          Confirm
+          Delete
         </Button>
       </DialogActions>
     </Dialog>
@@ -244,22 +234,21 @@ const UserListPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+    <Box sx={{ width: '100%',p: 4}}>
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
+            flexDirection: { xs: 'column',sm: 'column', md: 'row' },
             justifyContent: 'space-between',
-            alignItems: { xs: 'stretch', sm: 'center' },
-            padding: 2,
+            alignItems: { xs: 'flex-start',sm: 'flex-start', md: 'center' },
+            pb:4,
             gap: 2
           }}
         >
           <Typography
-            variant="h5"
+            variant="h4"
             sx={{
-              fontWeight: 600,
+              fontWeight: 700,
               color: '#1976d2',
               display: 'flex',
               alignItems: 'center',
@@ -293,6 +282,7 @@ const UserListPage: React.FC = () => {
 
             {isAdmin && (
               <Button
+                color="primary"
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleAddUser}
@@ -302,7 +292,7 @@ const UserListPage: React.FC = () => {
               </Button>
             )}
 
-            <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)} style={{ height: '42px',minWidth:'180px' }}>
+            <Button  color="primary" variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)} style={{ height: '42px',minWidth:'180px' }}>
               Bulk Add User
             </Button>
             <BulkUserInsertionDialog open={openDialog} onClose={() => setOpenDialog(false)} onSubmit={() => {
@@ -311,89 +301,90 @@ const UserListPage: React.FC = () => {
           </Box>
         </Box>
 
-        <TableContainer>
-          <Table stickyHeader aria-label="user table">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'firstname' ? sortDirection : false}>
-                  <TableSortLabel
-                    active={sortColumn === 'firstname'}
-                    direction={sortColumn === 'firstname' ? sortDirection : 'asc'}
-                    onClick={() => handleSortClick('firstname')}
-                  >
-                    First Name
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'lastname' ? sortDirection : false}>
-                  <TableSortLabel
-                    active={sortColumn === 'lastname'}
-                    direction={sortColumn === 'lastname' ? sortDirection : 'asc'}
-                    onClick={() => handleSortClick('lastname')}
-                  >
-                    Last Name
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell sortDirection={sortColumn === 'roleid' ? sortDirection : false}>
-                  <TableSortLabel
-                    active={sortColumn === 'roleid'}
-                    direction={sortColumn === 'roleid' ? sortDirection : 'asc'}
-                    onClick={() => handleSortClick('roleid')}
-                  >
-                    Role
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>Age</TableCell>
-                {isAdmin && <TableCell>Actions</TableCell>}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {users?.length > 0 ? (
-                users.map((user) => (
-                  <TableRow hover key={user.id}>
-                    <TableCell>{user.firstname}</TableCell>
-                    <TableCell>{user.lastname}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{getRoleName(user.roleId)}</TableCell>
-                    <TableCell>{user.phoneNumber}</TableCell>
-                    <TableCell>{calculateAge(user.dateofbirth)}</TableCell>
-                    {isAdmin && (
-                      <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }}>
-                        <IconButton onClick={() => handleEdit(user)} color="primary">
-                          <EditIcon />
-                        </IconButton>
-                        {user.id !== loggedInUserId && (
-                          <IconButton onClick={() => handleDeleteClick(user.id)} color="error">
-                            <DeleteIcon />
+        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+          <TableContainer>
+            <Table stickyHeader aria-label="user table">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'firstname' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'firstname'}
+                      direction={sortColumn === 'firstname' ? sortDirection : 'asc'}
+                      onClick={() => handleSortClick('firstname')}
+                    >
+                      First Name
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'lastname' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'lastname'}
+                      direction={sortColumn === 'lastname' ? sortDirection : 'asc'}
+                      onClick={() => handleSortClick('lastname')}
+                    >
+                      Last Name
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell sortDirection={sortColumn === 'roleid' ? sortDirection : false}>
+                    <TableSortLabel
+                      active={sortColumn === 'roleid'}
+                      direction={sortColumn === 'roleid' ? sortDirection : 'asc'}
+                      onClick={() => handleSortClick('roleid')}
+                    >
+                      Role
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>Phone</TableCell>
+                  <TableCell>Age</TableCell>
+                  {isAdmin && <TableCell>Actions</TableCell>}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {users?.length > 0 ? (
+                  users.map((user) => (
+                    <TableRow hover key={user.id}>
+                      <TableCell>{user.firstname}</TableCell>
+                      <TableCell>{user.lastname}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{getRoleName(user.roleId)}</TableCell>
+                      <TableCell>{user.phoneNumber}</TableCell>
+                      <TableCell>{calculateAge(user.dateofbirth)}</TableCell>
+                      {isAdmin && (
+                        <TableCell align="center" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }}>
+                          <IconButton onClick={() => handleEdit(user)} color="primary">
+                            <EditIcon />
                           </IconButton>
-                        )}
+                          {user.id !== loggedInUserId && (
+                            <IconButton onClick={() => handleDeleteClick(user.id)} color="error">
+                              <DeleteIcon />
+                            </IconButton>
+                          )}
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
+                ) : (
+                  !loading && (
+                    <TableRow>
+                      <TableCell colSpan={isAdmin ? 7 : 6} align="center">
+                        No users found.
                       </TableCell>
-                    )}
-                  </TableRow>
-                ))
-              ) : (
-                !loading && (
-                  <TableRow>
-                    <TableCell colSpan={isAdmin ? 7 : 6} align="center">
-                      No users found.
-                    </TableCell>
-                  </TableRow>
-                )
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={totalUsers}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
+                    </TableRow>
+                  )
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={totalUsers}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Paper>
 
       <UserFormDialog
         open={isFormOpen}
