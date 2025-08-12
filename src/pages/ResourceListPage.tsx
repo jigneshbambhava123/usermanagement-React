@@ -259,9 +259,9 @@ const ResourceListPage: React.FC = () => {
         >
           <Typography
             variant="h4"
+            color="primary"
             sx={{
               fontWeight: 600,
-              color: '#1976d2',
               display: 'flex',
               alignItems: 'center',
               gap: 1,

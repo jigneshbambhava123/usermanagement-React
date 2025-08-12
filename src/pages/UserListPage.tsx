@@ -16,6 +16,7 @@ import UserFormDialog from '../components/UserFormDialog';
 import Loader from '../components/Loader';
 import { getUserIdFromToken } from '../helpers/authHelpers';
 import BulkUserInsertionDialog from '../components/BulkUserInsertionDialog';
+import EnabledMfaDialog from '../components/EnableMfaDialog';
 
 type AddUserFormData = Omit<User, 'id' | 'isActive'>;
 type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
@@ -108,6 +109,7 @@ const UserListPage: React.FC = () => {
   const [userToDeleteId, setUserToDeleteId] = useState<number | null>(null);
 
   const [openDialog, setOpenDialog] = useState(false);
+  const [openMfaDialog, setOpenMfaDialog] = useState(false);
 
   const roles = getUserRoles();
   const isAdmin = roles.includes("Admin");
@@ -247,9 +249,9 @@ const UserListPage: React.FC = () => {
         >
           <Typography
             variant="h4"
+            color="primary"
             sx={{
               fontWeight: 700,
-              color: '#1976d2',
               display: 'flex',
               alignItems: 'center',
               gap: 1
@@ -282,6 +284,19 @@ const UserListPage: React.FC = () => {
 
             {isAdmin && (
               <Button
+                  color="primary"
+                  variant="contained"
+                   onClick={() => setOpenMfaDialog(true)}
+                  sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'140px'}}
+                >
+                Manage MFA
+              </Button>
+            )}
+            <EnabledMfaDialog open={openMfaDialog} onClose={() => setOpenMfaDialog(false)} />
+
+            {isAdmin && (
+              
+              <Button
                 color="primary"
                 variant="contained"
                 startIcon={<AddIcon />}
@@ -290,6 +305,7 @@ const UserListPage: React.FC = () => {
               >
                 Add User
               </Button>
+              
             )}
 
             <Button  color="primary" variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)} style={{ height: '42px',minWidth:'180px' }}>

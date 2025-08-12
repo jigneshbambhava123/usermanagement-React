@@ -37,6 +37,13 @@ const LoginPage = () => {
   ) => {
     try {
       const response = await loginUser(values);
+
+      if(response.data?.message === "OTP sent to email."){
+          navigate("/verify-otp", {
+            state: { email: values.email, rememberMe: values.rememberMe ,from: location.state?.from || { pathname: "/dashboard" }},
+          });
+          return;
+      }
       const { token } = response.data;
 
       const storage = values.rememberMe ? localStorage : sessionStorage;
@@ -44,6 +51,7 @@ const LoginPage = () => {
 
       const from = location.state?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });
+      toast.success("Login successful");
     } catch (err: any) {
       const errorMessage =
         err?.response?.data?.message || err?.message || "Login failed. Please check your credentials.";

@@ -2,6 +2,8 @@ import api from './axiosInstance';
 
 export interface AuthResponse {
   token: string;
+  message: string;
+  email: string;
 }
 
 export interface RegisterUser {
@@ -24,6 +26,9 @@ interface ResetPasswordPayload {
 
 export const loginUser = (credentials: { email: string; password: string }) =>
   api.post<AuthResponse>('/Account/Login', credentials);
+
+export const verifyOtp = (payload: { email: string; otp: string; rememberMe: boolean }) =>
+  api.post<AuthResponse>('/Account/VerifyOtp', payload);
 
 export const registerUser = (payload: RegisterUser) => {
   return api.post("/Account/Register", payload);

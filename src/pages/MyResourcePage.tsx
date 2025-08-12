@@ -182,9 +182,9 @@ const MyResourcePage: React.FC = () => {
         >
           <Typography
             variant="h4"
+            color="primary"
             sx={{
               fontWeight: 700,
-              color: '#1976d2',
               display: 'flex',
               alignItems: 'center',
               gap: 1
@@ -243,14 +243,14 @@ const MyResourcePage: React.FC = () => {
           <Button
             variant={tab === 'active' ? 'contained' : 'outlined'}
             startIcon={<StorageIcon />}
-            onClick={() => { setTab('active'); setPage(0); }}
+            onClick={() => {  if (tab !== 'active') {setLoading(true); setTab('active'); setPage(0); }}}
           >
             Active Resource
           </Button>
           <Button
             variant={tab === 'history' ? 'contained' : 'outlined'}
             startIcon={<HistoryIcon />}
-            onClick={() => { setTab('history'); setPage(0); }}
+            onClick={() => {  if (tab !== 'history') {setLoading(true);setTab('history'); setPage(0); }}}
           >
             Resource History
           </Button>
@@ -301,7 +301,7 @@ const MyResourcePage: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {bookings?.length > 0 ? (
+                {!loading && bookings?.length > 0 ? (
                   bookings.map((booking) => (
                     <TableRow hover key={booking.id}>
                       <TableCell>{booking.resourceName}</TableCell>
@@ -320,7 +320,7 @@ const MyResourcePage: React.FC = () => {
                 ) : (
                   !loading && (
                     <TableRow>
-                      <TableCell colSpan={4} align="center">
+                      <TableCell colSpan={5} align="center">
                         No resources found.
                       </TableCell>
                     </TableRow>

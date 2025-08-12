@@ -15,7 +15,6 @@ const EditToDateDialog: React.FC<EditToDateDialogProps> = ({open,onClose,current
     const [ToDate, setToDate] = useState<string>('');
  
     useEffect(() => {
-        console.log(currentToDate.split("T")[0]);
         setToDate(currentToDate.split("T")[0]);
     }, [currentToDate]);
  
@@ -50,8 +49,8 @@ const EditToDateDialog: React.FC<EditToDateDialogProps> = ({open,onClose,current
             />
         </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">Cancel</Button>
-        <Button onClick={handleUpdate} variant="contained" color="primary">Update</Button>
+        <Button onClick={onClose} color="primary" variant="outlined">Cancel</Button>
+        <Button onClick={handleUpdate} variant="contained" color="primary">Save Changes</Button>
       </DialogActions>
     </Dialog>
   );

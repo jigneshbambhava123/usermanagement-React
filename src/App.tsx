@@ -18,6 +18,7 @@ import DashboardPage from './pages/DashboardPage';
 import { releaseExpiredBookings } from './api/bookingApi'; 
 import ErrorBoundary from './components/ErrorBoundary';
 import { createTheme,ThemeProvider  } from '@mui/material'; 
+import VerifyOtpPage from './pages/VerifyOtpPage';
 
 const theme = createTheme({
   palette: {
@@ -96,6 +97,7 @@ const AppRoutes = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         <Route path="/" element={<LoginPage />} />
+        <Route path="/verify-otp" element={<VerifyOtpPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="/Account/ResetPassword" element={<ResetPasswordPage />} />

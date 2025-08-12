@@ -44,19 +44,23 @@ const DashboardPage: React.FC = () => {
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  const fetchStats = async () => {
+  const fetchActiveUsers = async () => {
+    try {
+      const userStats = await getActiveUsersCount();
+      setActiveUsers(userStats.activeUsersCount);
+    } catch (error) {
+      console.error("Error fetching active user count", error);
+    }
+  };
+
+  const fetchResourceUsage = async () => {
     setLoading(true);
     try {
-      const [userStats, usage] = await Promise.all([
-        getActiveUsersCount(),
-        getDailyResourceUsage(userId ?? 0, days),
-        delay(800) 
-      ]);
-
-      setActiveUsers(userStats.activeUsersCount);
+      const usage = await getDailyResourceUsage(userId ?? 0, days);
+      await delay(800);
       setResourceUsage(usage);
     } catch (error) {
-      console.error("Error fetching dashboard data", error);
+      console.error("Error fetching resource usage", error);
       await delay(500);
     } finally {
       setLoading(false);
@@ -64,7 +68,11 @@ const DashboardPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchStats();
+    fetchActiveUsers(); 
+  }, []);
+  
+  useEffect(() => {
+    fetchResourceUsage(); 
   }, [days]);
 
   const totalActiveQuantity = resourceUsage.reduce((sum, item) => sum + item.totalActiveQuantity, 0);
@@ -220,8 +228,8 @@ const DashboardPage: React.FC = () => {
       >
         {[
           { label: 'Active Users', value: activeUsers, bg: '#8f9bdfff', icon: <PeopleIcon /> },
-          { label: 'Total Active Resource', value: totalActiveQuantity, bg: '#4CAF50', icon: <StorageIcon /> },
-          { label: 'Total Used Resource', value: totalUsedQuantity, bg: '#ff9800', icon: <AssignmentTurnedInIcon  /> },
+          { label: 'Total Active Resource Quantity', value: totalActiveQuantity, bg: '#4CAF50', icon: <StorageIcon /> },
+          { label: 'Total Used Resource Quantity', value: totalUsedQuantity, bg: '#ff9800', icon: <AssignmentTurnedInIcon  /> },
         ].map((stat, idx) => (
           <Box
             key={idx}

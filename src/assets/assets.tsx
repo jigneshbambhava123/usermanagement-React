@@ -4,6 +4,7 @@ import CandidateIcon from "./candidate_icon.svg";
 import logo from "./logo.svg";
 import WarningIcon from "./Warningicon.png";
 import spinner from "./spinner.gif";
+import EmailIcon from "./email.png";
 
 export {
   HeroImg,
@@ -11,5 +12,6 @@ export {
   CandidateIcon,
   logo,
   WarningIcon,
-  spinner
+  spinner,
+  EmailIcon
 };

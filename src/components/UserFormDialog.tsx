@@ -296,7 +296,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                 <Button onClick={onClose} color="primary" variant="outlined">
                   Cancel
                 </Button>
-                <Button type="submit" color="primary" variant="contained">
+                <Button type="submit" variant="contained" color="primary">
                   {isEditMode ? 'Save Changes' : 'Add User'}
                 </Button>
               </DialogActions>
