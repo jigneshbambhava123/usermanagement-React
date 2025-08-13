@@ -32,8 +32,10 @@ import { getActiveUsersCount, getDailyResourceUsage } from '../api/dashboardApi'
 import type { DailyResourceUsage } from '../api/dashboardApi';
 import { getUserIdFromToken } from "../helpers/authHelpers";
 import Loader from '../components/Loader';
+import useLanguage from '../hooks/useLanguage';
 
 const DashboardPage: React.FC = () => {
+  const { t } = useLanguage();
   const [activeUsers, setActiveUsers] = useState<number>(0);
   const [days, setDays] = useState<number>(30);
   const [resourceUsage, setResourceUsage] = useState<DailyResourceUsage[]>([]);
@@ -126,7 +128,7 @@ const DashboardPage: React.FC = () => {
     const yAxisProps = {
       tick: { fontSize: 12 },
       label: { 
-        value: 'Quantity', 
+        value: t('quantity'), 
         angle: -90, 
         position: 'insideLeft',
         style: { textAnchor: 'middle' }
@@ -198,14 +200,14 @@ const DashboardPage: React.FC = () => {
         <Bar 
           dataKey="totalActiveQuantity" 
           fill="#4CAF50" 
-          name="Active Resource"
+          name={t('activeResource')}
           radius={[2, 2, 0, 0]}
           barSize={50}
         />
         <Bar 
           dataKey="totalUsedQuantity" 
           fill="#FF9800" 
-          name="Used Resource"
+          name={t('usedResource')}
           radius={[2, 2, 0, 0]}
           barSize={50}
         />
@@ -216,7 +218,7 @@ const DashboardPage: React.FC = () => {
   return (
     <Box p={4} bgcolor="#f9f9f9">
       <Typography variant="h4" fontWeight={700} color="primary" mb={2}>
-        Dashboard 
+        {t('dashboard')}
       </Typography>
 
       <Box
@@ -227,9 +229,9 @@ const DashboardPage: React.FC = () => {
         gap={3}
       >
         {[
-          { label: 'Active Users', value: activeUsers, bg: '#8f9bdfff', icon: <PeopleIcon /> },
-          { label: 'Total Active Resource Quantity', value: totalActiveQuantity, bg: '#4CAF50', icon: <StorageIcon /> },
-          { label: 'Total Used Resource Quantity', value: totalUsedQuantity, bg: '#ff9800', icon: <AssignmentTurnedInIcon  /> },
+          { label: t('activeUsers'), value: activeUsers, bg: '#8f9bdfff', icon: <PeopleIcon /> },
+          { label: t('totalActiveResourceQuantity'), value: totalActiveQuantity, bg: '#4CAF50', icon: <StorageIcon /> },
+          { label: t('totalUsedResourceQuantity'), value: totalUsedQuantity, bg: '#ff9800', icon: <AssignmentTurnedInIcon  /> },
         ].map((stat, idx) => (
           <Box
             key={idx}
@@ -283,28 +285,28 @@ const DashboardPage: React.FC = () => {
           >
             <Typography  variant="h6" fontWeight={600} color="primary" sx={{ display: 'inline-flex', alignItems: 'center' }}>
               <HistoryIcon sx={{ mr: 1 }} />
-              Resource Usage History
+              {t('resourceUsageHistory')}
             </Typography>
 
             <Stack direction="row" spacing={2}>
               <FormControl size="small">
-                <InputLabel>Chart Type</InputLabel>
+                <InputLabel>{t('chartType')}</InputLabel>
                 <Select
                   value={chartType}
                   label="Chart Type"
                   onChange={(e) => setChartType(e.target.value as 'bar' | 'line' | 'area')}
                 >
-                  <MenuItem value="bar">Bar Chart</MenuItem>
-                  <MenuItem value="line">Line Chart</MenuItem>
-                  <MenuItem value="area">Area Chart</MenuItem>
+                  <MenuItem value="bar">{t('barChart')}</MenuItem>
+                  <MenuItem value="line">{t('lineChart')}</MenuItem>
+                  <MenuItem value="area">{t('areaChart')}</MenuItem>
                 </Select>
               </FormControl>
               <FormControl size="small">
-                <InputLabel>Time Period</InputLabel>
+                <InputLabel>{t('timePeriod')}</InputLabel>
                 <Select value={days} label="Time Period" onChange={(e) => setDays(Number(e.target.value))}>
-                  <MenuItem value={10}>Last 10 days</MenuItem>
-                  <MenuItem value={30}>Last 30 days</MenuItem>
-                  <MenuItem value={60}>Last 60 days</MenuItem>
+                  <MenuItem value={10}>{t('last10Days')}</MenuItem>
+                  <MenuItem value={30}>{t('last30Days')}</MenuItem>
+                  <MenuItem value={60}>{t('last60Days')}</MenuItem>
                 </Select>
               </FormControl>
             </Stack>
@@ -318,8 +320,8 @@ const DashboardPage: React.FC = () => {
             </Box>
           ) : (
             <Box textAlign="center" py={10} color="text.secondary">
-              <Typography variant="h6" gutterBottom>No data available</Typography>
-              <Typography variant="body2">Try adjusting the time period or check back later</Typography>
+              <Typography variant="h6" gutterBottom>{t('noDataAvailable')}</Typography>
+              <Typography variant="body2">{t('tryAdjusting')}</Typography>
             </Box>
           )}
         </CardContent>

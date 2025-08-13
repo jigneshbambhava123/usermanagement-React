@@ -19,6 +19,7 @@ import { releaseExpiredBookings } from './api/bookingApi';
 import ErrorBoundary from './components/ErrorBoundary';
 import { createTheme,ThemeProvider  } from '@mui/material'; 
 import VerifyOtpPage from './pages/VerifyOtpPage';
+import "./i18n"
 
 const theme = createTheme({
   palette: {

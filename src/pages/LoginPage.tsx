@@ -6,28 +6,33 @@ import { loginUser } from "../api/authApi";
 import { useNavigate, Link , useLocation} from "react-router-dom";
 import { toast } from "react-toastify";
 import { HeroImg } from "../assets/assets";
- 
+import useLanguage from "../hooks/useLanguage";
+import { getUserIdFromToken } from "../helpers/authHelpers";
+import { updateUserLanguage } from "../api/userApi";
+import LanguageIcon from '@mui/icons-material/Language';
+
 interface ILoginRequest {
   email: string;
   password: string;
   rememberMe: boolean; 
 }
 
-const LoginSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  password: Yup.string()
-    .required("Password is required"),
-    rememberMe: Yup.boolean(),
-});
-
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const {t, currentLanguage, changeLanguage } = useLanguage();
+
+  const LoginSchema = Yup.object().shape({
+    email: Yup.string().email(t('invalidEmail')).required(t('emailRequired')),
+    password: Yup.string()
+      .required(t('passwordRequired')),
+      rememberMe: Yup.boolean(),
+  });
 
   const initialValues: ILoginRequest = {
     email: "",
-    password: "",
+    password: "", 
     rememberMe: false,
   };
 
@@ -49,12 +54,18 @@ const LoginPage = () => {
       const storage = values.rememberMe ? localStorage : sessionStorage;
       storage.setItem("jwt_token", token);
 
+      const loggedInUserId = getUserIdFromToken();
+      if (loggedInUserId) {
+        updateUserLanguage(loggedInUserId, currentLanguage)
+          .catch(err => console.error(t('updateLanguageError'), err));
+      }
+
       const from = location.state?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });
-      toast.success("Login successful");
+      toast.success(t("loginSuccess"));
     } catch (err: any) {
       const errorMessage =
-        err?.response?.data?.message || err?.message || "Login failed. Please check your credentials.";
+        err?.response?.data?.message || err?.message || t("loginFailed");
       toast.error(errorMessage);
     } finally {
       setSubmitting(false);
@@ -79,19 +90,37 @@ const LoginPage = () => {
         <div className="mb-6 text-center">
           <Link to="/" className="inline-flex items-center gap-2">
             <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
-            <h2 className="text-3xl font-bold text-[#00092a]">User Management</h2>
+            <h2 className="text-3xl font-bold text-[#00092a]">{t('userManagement')}</h2>
           </Link>
         </div>
 
-        <div className="mb-4">
-          <h3 className="text-xl font-bold">Sign In</h3>
-          <p className="text-gray-600">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-blue-600 hover:underline">
-              Sign Up
-            </Link>
-          </p>
-        </div> 
+          <div className="flex justify-end">
+            <div className="mb-2 flex items-center rounded-lg bg-gray-100 p-1 shadow-lg">
+              <LanguageIcon className="text-blue-500" />
+              <select
+                value={currentLanguage}
+                onChange={(e) => changeLanguage(e.target.value)}
+                className="bg-transparent border-none text-gray-700 font-medium p-2 focus:outline-none cursor-pointer"
+              >
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="bn">Bengali</option>
+                <option value="de">German</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <h3 className="text-xl font-bold">{t("signIn")}</h3>
+            <p className="text-gray-600">
+              {t("dontHaveAccount")}{" "}
+              <Link to="/register" className="text-blue-600 hover:underline">
+                {t("signUp")}
+              </Link>
+            </p>
+          </div> 
+
+          
 
         {/* Formik Form */}
         <Formik
@@ -149,7 +178,7 @@ const LoginPage = () => {
                     name="rememberMe"
                     className="h-4 w-4 accent-blue-600 rounded mr-2 "
                   />
-                  Remember Me
+                  {t("rememberMe")}
                 </label>
 
                 {/* Forgot Password */}
@@ -158,7 +187,7 @@ const LoginPage = () => {
                   onClick={handleForgotPassword}
                   className="text-blue-600 hover:underline"
                 >
-                  Forgot Password?
+                  {t("forgotPassword")}
                 </button>
               </div>
 
@@ -168,7 +197,7 @@ const LoginPage = () => {
                 disabled={isSubmitting}
                 className="w-full  bg-blue-600 text-white py-3 rounded-lg font-semibold text-[18px] hover:bg-blue-700 transition duration-200 disabled:opacity-60"
               >
-                Sign in
+                {t("signIn")}
               </button>
             </Form>
           )}

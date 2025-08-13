@@ -4,10 +4,14 @@ import { toast } from "react-toastify";
 import { verifyOtp } from "../api/authApi";
 import { HeroImg } from "../assets/assets";
 import { MuiOtpInput } from 'mui-one-time-password-input';
+import { getUserIdFromToken } from "../helpers/authHelpers";
+import { updateUserLanguage } from "../api/userApi";
+import useLanguage from "../hooks/useLanguage";
 
 const VerifyOtpPage = () => {
   const [otp, setOtp] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { currentLanguage } = useLanguage();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,6 +58,12 @@ const VerifyOtpPage = () => {
       const { token } = response.data;
       const storage = rememberMe ? localStorage : sessionStorage;
       storage.setItem("jwt_token", token);
+
+      const loggedInUserId = getUserIdFromToken();
+      if (loggedInUserId) {
+        updateUserLanguage(loggedInUserId, currentLanguage)
+          .catch(err => console.error("Error updating language after login:", err));
+      }
 
       const from = location.state?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });

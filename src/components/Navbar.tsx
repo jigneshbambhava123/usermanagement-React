@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { getUserRoles } from '../helpers/authHelpers'; 
+import { getUserIdFromToken, getUserRoles } from '../helpers/authHelpers'; 
 import { logout } from '../helpers/authHelpers';
 import './Navbar.css'
 import { HeroImg } from "../assets/assets"; 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography } from '@mui/material';
+import useLanguage from "../hooks/useLanguage";
+import LanguageIcon from '@mui/icons-material/Language';
+import { updateUserLanguage, getUserLanguage  } from '../api/userApi';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
   const roles = getUserRoles();
+  const loggedInUserId = getUserIdFromToken();
+
   const navigate = useNavigate();
+  const { t, changeLanguage, currentLanguage, setCurrentLanguage } = useLanguage();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
@@ -29,7 +35,6 @@ const Navbar: React.FC = () => {
   };
 
    const handleLogoutClick = () => {
-    // Just open the dialog
     setIsLogoutDialogOpen(true);
     closeMenu();
   };
@@ -41,6 +46,28 @@ const Navbar: React.FC = () => {
 
   const handleLogoutCancel = () => {
     setIsLogoutDialogOpen(false);
+  };
+
+  useEffect(() => {
+    if (loggedInUserId) {
+      getUserLanguage(loggedInUserId)
+        .then(res => {
+          const lang = res.data.language || 'en'; 
+          changeLanguage(lang);
+          setCurrentLanguage(lang); 
+        })
+        .catch(err => console.error('Error fetching user language:', err));
+    }
+  }, [loggedInUserId]);
+
+  const handleLanguageChange  = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedLanguage = e.target.value;
+    changeLanguage(selectedLanguage);
+
+    if (loggedInUserId) {
+      updateUserLanguage(loggedInUserId, selectedLanguage)
+        .catch(err => console.error('Error updating language:', err));
+    }
   };
 
   return (
@@ -77,7 +104,7 @@ const Navbar: React.FC = () => {
                 onClick={closeMenu}
               >
                 <i className="bi bi-grid-fill me-2"></i>
-                Dashboard
+                 {t('dashboard')}
               </Link>
             )}
 
@@ -88,7 +115,7 @@ const Navbar: React.FC = () => {
                 onClick={closeMenu}
               >
                 <i className="bi bi-people me-2"></i>
-                User
+                {t('title')}
               </Link>
             )}
 
@@ -114,6 +141,19 @@ const Navbar: React.FC = () => {
               </Link>
             )}
 
+            <div className="nav-link language-dropdown">
+              <LanguageIcon />
+              <select
+                value={currentLanguage}
+                onChange={handleLanguageChange}
+                className="language-select"
+              >
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="bn">Bengali</option>
+                <option value="de">German</option>
+              </select>
+            </div>
           </div>
 
           <button

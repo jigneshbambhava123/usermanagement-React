@@ -17,6 +17,7 @@ import Loader from '../components/Loader';
 import { getUserIdFromToken } from '../helpers/authHelpers';
 import BulkUserInsertionDialog from '../components/BulkUserInsertionDialog';
 import EnabledMfaDialog from '../components/EnableMfaDialog';
+import useLanguage from '../hooks/useLanguage';
 
 type AddUserFormData = Omit<User, 'id' | 'isActive'>;
 type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
@@ -92,6 +93,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, onClose, onConfirm,
 };
 
 const UserListPage: React.FC = () => {
+  const { t } = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [page, setPage] = useState(0);
@@ -136,7 +138,7 @@ const UserListPage: React.FC = () => {
       setTotalUsers(totalCount);
 
     } catch (error) {
-      toast.error("Failed to fetch users.");
+      toast.error(t('fetchUsersError'));
       setUsers([]);
       setTotalUsers(0);
       await delay(500);
@@ -149,7 +151,7 @@ const UserListPage: React.FC = () => {
   useEffect(() => {
     const success = localStorage.getItem("login_success");
     if (success) {
-      toast.success("Login successful!");
+      toast.success(t('loginSuccess'));
       localStorage.removeItem("login_success");
     }
     const debouncedFetch = debounce(() => {
@@ -197,11 +199,11 @@ const UserListPage: React.FC = () => {
     if (userToDeleteId !== null) {
       try {
         await deleteUser(userToDeleteId);
-        toast.success("User deleted successfully!");
+        toast.success(t('deleteUserSuccess'));
         setPage(0);
         fetchUsers(); 
       } catch (error) {
-        toast.error("Failed to delete user.");
+        toast.error(t('deleteUserError'));
       } finally {
         setIsConfirmDialogOpen(false); 
         setUserToDeleteId(null); 
@@ -213,16 +215,15 @@ const UserListPage: React.FC = () => {
     try {
       if ('id' in userData) {
         await updateUser(userData as UpdateUserFormData);
-        toast.success("User updated successfully!");
+        toast.success(t('userUpdated'));
       } else {
         await createUser(userData as AddUserFormData);
-        toast.success("User added successfully!");
+        toast.success(t('userAdded'));
       }
       setIsFormOpen(false); 
       fetchUsers();
     } catch (error) {
-      toast.error(`Check User Detail.`);
-      console.error('Form submission error:', error);
+      toast.error(t('checkUserDetails'));
     }
   };
 
@@ -257,7 +258,7 @@ const UserListPage: React.FC = () => {
               gap: 1
             }}
           >
-            User
+            {t('title')}
           </Typography>
 
           <Box
@@ -289,7 +290,7 @@ const UserListPage: React.FC = () => {
                    onClick={() => setOpenMfaDialog(true)}
                   sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'140px'}}
                 >
-                Manage MFA
+                {t('manageMfa')}
               </Button>
             )}
             <EnabledMfaDialog open={openMfaDialog} onClose={() => setOpenMfaDialog(false)} />
@@ -303,13 +304,13 @@ const UserListPage: React.FC = () => {
                 onClick={handleAddUser}
                 sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'140px'}}
               >
-                Add User
+                 {t('addUser')}
               </Button>
               
             )}
 
             <Button  color="primary" variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)} style={{ height: '42px',minWidth:'180px' }}>
-              Bulk Add User
+              {t('bulkAddUser')}
             </Button>
             <BulkUserInsertionDialog open={openDialog} onClose={() => setOpenDialog(false)} onSubmit={() => {
                   fetchUsers();
@@ -328,7 +329,7 @@ const UserListPage: React.FC = () => {
                       direction={sortColumn === 'firstname' ? sortDirection : 'asc'}
                       onClick={() => handleSortClick('firstname')}
                     >
-                      First Name
+                      {t('firstName')}
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'lastname' ? sortDirection : false}>
@@ -337,22 +338,22 @@ const UserListPage: React.FC = () => {
                       direction={sortColumn === 'lastname' ? sortDirection : 'asc'}
                       onClick={() => handleSortClick('lastname')}
                     >
-                      Last Name
+                      {t('lastName')}
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell>Email</TableCell>
+                  <TableCell>{t('email')}</TableCell>
                   <TableCell sortDirection={sortColumn === 'roleid' ? sortDirection : false}>
                     <TableSortLabel
                       active={sortColumn === 'roleid'}
                       direction={sortColumn === 'roleid' ? sortDirection : 'asc'}
                       onClick={() => handleSortClick('roleid')}
                     >
-                      Role
+                      {t('role')}
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell>Phone</TableCell>
-                  <TableCell>Age</TableCell>
-                  {isAdmin && <TableCell>Actions</TableCell>}
+                  <TableCell>{t('phone')}</TableCell>
+                  <TableCell>{t('age')}</TableCell>
+                  {isAdmin && <TableCell>{t('actions')}</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -383,7 +384,7 @@ const UserListPage: React.FC = () => {
                   !loading && (
                     <TableRow>
                       <TableCell colSpan={isAdmin ? 7 : 6} align="center">
-                        No users found.
+                        {t('noUsersFound')}
                       </TableCell>
                     </TableRow>
                   )
@@ -414,8 +415,8 @@ const UserListPage: React.FC = () => {
         open={isConfirmDialogOpen}
         onClose={() => setIsConfirmDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Confirm Delete"
-        message="Are you sure you want to delete this user? "
+        title={t('confirmDeleteTitle')}
+        message={t('confirmDeleteMessage')}
       />
 
       <Loader open={loading} />

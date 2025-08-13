@@ -2,6 +2,7 @@ import {Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLa
 import { useState } from 'react';
 import { updateConfigurationValue } from '../api/configurationApi';
 import { toast } from 'react-toastify';
+import useLanguage from '../hooks/useLanguage';
  
 interface EnabledMfaDialogProps {
   open: boolean;
@@ -9,6 +10,7 @@ interface EnabledMfaDialogProps {
 }
  
 const EnabledMfaDialog: React.FC<EnabledMfaDialogProps> = ({ open, onClose }) => {
+  const { t } = useLanguage();
   const [isEnabled, setIsEnabled] = useState(false); 
   const [saving, setSaving] = useState(false);
  
@@ -16,10 +18,14 @@ const EnabledMfaDialog: React.FC<EnabledMfaDialogProps> = ({ open, onClose }) =>
     setSaving(true);
     try {
       await updateConfigurationValue('EnableMFA', isEnabled);
-      toast.success(`Multi-Factor Authentication ${isEnabled ? 'enabled' : 'disabled'} successfully.`);
+      toast.success(
+        isEnabled
+          ? t('mfaUpdateSuccessEnabled')
+          : t('mfaUpdateSuccessDisabled')
+      );      
       onClose();
     } catch (error) {
-      toast.error('Failed to update MFA setting.');
+      toast.error(t('mfaUpdateFailed'));
     } finally {
       setSaving(false);
     }
@@ -33,7 +39,7 @@ const EnabledMfaDialog: React.FC<EnabledMfaDialogProps> = ({ open, onClose }) =>
             sx={{
                 background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
             }}>
-            Manage Multi-Factor Authentication
+             {t('manageMultiFactorAuthentication')}
         </DialogTitle>
       <DialogContent>
         <Box
@@ -51,16 +57,16 @@ const EnabledMfaDialog: React.FC<EnabledMfaDialogProps> = ({ open, onClose }) =>
                 disabled={saving}
                 />
             }
-            label={isEnabled ? 'Enabled' : 'Disabled'}
+             label={isEnabled ? t('mfaEnabled') : t('mfaDisabled')}
             />
         </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={saving}>
-          Cancel
+          {t('cancel')}
         </Button>
         <Button onClick={handleSave} disabled={saving} variant="contained">
-          {saving ? <CircularProgress size={24} /> : 'Save'}
+          {saving ? <CircularProgress size={24} /> : t('save')}
         </Button>
       </DialogActions>
     </Dialog>

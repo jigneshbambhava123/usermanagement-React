@@ -7,6 +7,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import type { User } from '../api/userApi';
 import { getUserIdFromToken } from '../helpers/authHelpers';
+import useLanguage from '../hooks/useLanguage';
 
 type AddUserFormData = Omit<User, 'id' | 'isActive'>;
 type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
@@ -19,6 +20,7 @@ interface UserFormDialogProps {
 }
 
 const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, onSubmit }) => {
+  const { t } = useLanguage();
   const isEditMode = Boolean(user);
   const loggedInUserId = getUserIdFromToken();
 
@@ -34,46 +36,46 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
 
   const AddUserSchema = Yup.object().shape({
     firstname: Yup.string()
-      .min(2, "First name must be at least 2 characters long.")
-      .max(50, "First name must be at most 50 characters long.")
-      .matches(/^[a-zA-Z0-9_]+$/, "First name can only contain letters, numbers and underscore")
+      .min(2, t('firstNameMin'))
+      .max(50, t('firstNameMax'))
+      .matches(/^[a-zA-Z0-9_]+$/, t('firstNamePattern'))
       .required("First name is required"),
     lastname: Yup.string()
-      .min(2, "Last name must be at least 2 characters long.")
-      .max(50, "Last name must be at most 50 characters long.")
-      .matches(/^[a-zA-Z0-9_]+$/, "Last name can only contain letters, numbers and underscore")
-      .required("Last name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
+      .min(2, t('lastNameMin'))
+      .max(50, t('lastNameMax'))
+      .matches(/^[a-zA-Z0-9_]+$/, t('lastNamePattern'))
+      .required(t('lastNameRequired')),
+    email: Yup.string().email(t('invalidEmail')).required(t('emailRequired')),
     phoneNumber: Yup.string()
-      .matches(/^[0-9]{10}$/, "Phone must be 10 digits")
-      .required("Phone number is required"),
-    dateofbirth: Yup.date().required("Date of birth is required"),
+      .matches(/^[0-9]{10}$/, t('phoneInvalid'))
+      .required(t('phoneRequired')),
+    dateofbirth: Yup.date().required(t('dobRequired')),
     password: Yup.string()
-      .min(8, "Password must be at least 8 characters")
+      .min(8, t('passwordMin'))
       .matches(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+        t('passwordPattern')
       )
-      .required("Password is required"),
-    roleId: Yup.number().oneOf([1, 2], "Invalid role selected").required("Role is required"),
+      .required(t('passwordRequired')),
+    roleId: Yup.number().oneOf([1, 2], t('roleInvalid')).required(t('roleRequired')),
   });
 
   const EditUserSchema = Yup.object().shape({
     firstname: Yup.string()
-      .min(2, "First name must be at least 2 characters long.")
-      .max(50, "First name must be at most 50 characters long.")
-      .matches(/^[a-zA-Z0-9_]+$/, "First name can only contain letters, numbers and underscore")
-      .required("First name is required"),
+      .min(2, t('firstNameMin'))
+      .max(50, t('firstNameMax'))
+      .matches(/^[a-zA-Z0-9_]+$/, t('firstNamePattern'))
+      .required(t('firstNameRequired')),
     lastname: Yup.string()
-      .min(2, "Last name must be at least 2 characters long.")
-      .max(50, "Last name must be at most 50 characters long.")
-      .matches(/^[a-zA-Z0-9_]+$/, "Last name can only contain letters, numbers and underscore")
-      .required("Last name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
+      .min(2, t('lastNameMin'))
+      .max(50, t('lastNameMax'))
+      .matches(/^[a-zA-Z0-9_]+$/, t('lastNamePattern'))
+      .required(t('lastNameRequired')),
+    email: Yup.string().email(t('emailInvalid')).required(t('emailRequired')),
     phoneNumber: Yup.string()
-      .matches(/^[0-9]{10}$/, "Phone must be 10 digits")
-      .required("Phone number is required"),
-    roleId: Yup.number().oneOf([1, 2], "Invalid role selected").required("Role is required"),
+      .matches(/^[0-9]{10}$/, t('phoneInvalid'))
+      .required(t('phoneRequired')),
+    roleId: Yup.number().oneOf([1, 2], t('roleInvalid')).required(t('roleRequired')),
   });
 
   const handleSubmit = (values: typeof initialFormikValues) => {
@@ -120,7 +122,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
         sx={{
           background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
         }}      >
-        {isEditMode ? 'Edit User' : 'Add New User'}
+        {isEditMode ? t('editUser') : t('addNewUser')}
       </DialogTitle>
 
       <DialogContent>
@@ -138,7 +140,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                   <Field
                     type="text"
                     name="firstname"
-                    placeholder="First Name"
+                    placeholder={t('firstName')}
                     className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-200 ${
                       errors.firstname && touched.firstname
                         ? "border-red-500 focus:ring-red-500"
@@ -157,7 +159,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                   <Field
                     type="text"
                     name="lastname"
-                    placeholder="Last Name"
+                    placeholder={t('lastName')}
                     className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-200 ${
                       errors.lastname && touched.lastname
                         ? "border-red-500 focus:ring-red-500"
@@ -176,7 +178,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                   <Field
                     type="email"
                     name="email"
-                    placeholder="Email"
+                    placeholder={t('email')}
                     className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-200 ${
                       errors.email && touched.email
                         ? "border-red-500 focus:ring-red-500"
@@ -196,7 +198,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                     <Field
                       type="password"
                       name="password"
-                      placeholder="Password"
+                      placeholder={t('passwordField')}
                       className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-200 ${
                         errors.password && touched.password
                           ? "border-red-500 focus:ring-red-500"
@@ -216,7 +218,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                   <Field
                     type="text"
                     name="phoneNumber"
-                    placeholder="Phone Number"
+                    placeholder={t('phoneNumber')}
                     className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-200 ${
                       errors.phoneNumber && touched.phoneNumber
                         ? "border-red-500 focus:ring-red-500"
@@ -241,7 +243,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                   }`}
                   sx={{ mt: 1 }}
                 >
-                  <InputLabel id="role-select-label">Role</InputLabel>
+                  <InputLabel id="role-select-label">{t('role')}</InputLabel>
                   <Field
                     as={Select}
                     labelId="role-select-label"
@@ -253,8 +255,8 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                       setFieldValue('roleId', event.target.value);
                     }}
                   >
-                    <MenuItem value={1}>Admin</MenuItem>
-                    <MenuItem value={2}>User</MenuItem>
+                    <MenuItem value={1}>{t('roleAdmin')}</MenuItem>
+                    <MenuItem value={2}>{t('roleUser')}</MenuItem>
                   </Field>
                   <ErrorMessage
                     name="roleId"
@@ -271,7 +273,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                       {({ field, meta }: any) => (
                         <TextField
                           {...field}
-                          label="Date of Birth"
+                          label={t('dateOfBirth')}
                           type="date"
                           fullWidth
                           max={new Date().toISOString().split('T')[0]}
@@ -294,10 +296,10 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
                 backgroundColor: 'white'
               }}>
                 <Button onClick={onClose} color="primary" variant="outlined">
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" variant="contained" color="primary">
-                  {isEditMode ? 'Save Changes' : 'Add User'}
+                  {isEditMode ? t('saveChanges') : t('addUser')}
                 </Button>
               </DialogActions>
             </Form>

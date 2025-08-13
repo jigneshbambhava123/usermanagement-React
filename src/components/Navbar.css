@@ -121,6 +121,34 @@
   }
 }
 
+.language-dropdown {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  padding: 8px 12px;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.language-select {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  padding-left: 4px;
+  cursor: pointer;
+  color: #fff;
+}
+
+.language-select:focus {
+  outline: none;
+}
+
+.language-select option {
+  color: black; 
+}
+
 .logout-btn {
   background: rgba(255, 255, 255, 0.1);
   color: white;

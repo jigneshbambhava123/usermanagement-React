@@ -7,6 +7,7 @@ import {
 import { toast } from 'react-toastify';
 import type { User } from '../api/userApi';
 import api from '../api/axiosInstance';
+import useLanguage from '../hooks/useLanguage';
  
 interface BulkUserUploadDialogProps {
   open: boolean;
@@ -14,15 +15,16 @@ interface BulkUserUploadDialogProps {
   onSubmit: () => void;
 }
 
-const getRoleName = (roleId: number) => {
+const getRoleName = (roleId: number, t: any) => {
   switch (roleId) {
-    case 1: return "Admin";
-    case 2: return "User";
-    default: return "Unknown";
+    case 1: return t('roleAdmin');
+    case 2: return t('roleUser');
+    default: return t('roleUnknown');
   }
 };
  
 const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClose, onSubmit }) => {
+  const { t } = useLanguage();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [successUsers, setSuccessUsers] = useState<User[]>([]);
   const [errorUsers, setErrorUsers] = useState<{ user: User; errors: string }[]>([]);
@@ -33,14 +35,14 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
     if (file && file.name.endsWith('.xlsx')) {
       setSelectedFile(file);
     } else {
-      toast.warning('Please select Excel File.');
+      toast.warning(t('pleaseSelectExcelFile'));
       setSelectedFile(null);
     }
   };
  
   const handleProcess = async () => {
     if (!selectedFile) {
-      toast.warning('Please select Excel File.');
+      toast.warning(t('pleaseSelectExcelFile'));
       return;
     }
  
@@ -53,11 +55,11 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
         setSuccessUsers(response.data.successList);
         setErrorUsers(response.data.errorList);
         onSubmit(); 
-        toast.success('user process complete!');
+        toast.success(t('userProcessComplete'));
         setActiveTab('success');
     } catch (error) {
       console.error(error);
-      toast.error('some error occur');
+      toast.error(t('someErrorOccur'));
     } 
   };
 
@@ -76,11 +78,11 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
       sx={{
           background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
         }}
-      >Bulk Add User</DialogTitle>
+      >{t('bulkAddUserTitle')}</DialogTitle>
       <DialogContent >
 
         <Box mt={2} mb={2} className="flex flex-col gap-2">
-          <label className="font-bold text-gray-700">Upload Excel File:</label>
+          <label className="font-bold text-gray-700">{t('uploadExcelFileLabel')}</label>
           <input className="p-2 border border-gray-300 rounded text-sm" type="file" onChange={handleFileChange} />
         </Box>
  
@@ -92,58 +94,59 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
               onClick={() => setActiveTab('success')}
               sx={{ mr: 2 }}
             >
-              Show Success Records
+              {t('showSuccessRecords')}
             </Button>
             <Button
               variant={activeTab === 'error' ? 'contained' : 'outlined'}
               color="error"
               onClick={() => setActiveTab('error')}
             >
-              Show Error Records
+              {t('showErrorRecords')}
             </Button>
           </Box>
         )}
- 
-        {activeTab === 'success'  && (
+
+       {activeTab === 'success' && (
           <Box mt={3}>
-            <TableContainer  sx={{ maxHeight: 300 }}>
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>First Name</TableCell>
-                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Last Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Password</TableCell>
-                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Phone Number</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Date of Birth</TableCell>
-                </TableRow>
-              </TableHead>
-             <TableBody>
-              {successUsers?.length > 0 ? (
-                successUsers.map((user, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{user.firstname}</TableCell>
-                    <TableCell>{user.lastname}</TableCell>
-                    <TableCell> {user.email}</TableCell>
-                    <TableCell>{user.password}</TableCell>
-                    <TableCell>{user.phoneNumber}</TableCell>
-                    <TableCell>{getRoleName(user.roleId)}</TableCell>
-                    <TableCell>{new Date(user.dateofbirth).toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))
-                ) : (
+            <TableContainer sx={{ maxHeight: 300 }}>
+              <Table stickyHeader>
+                <TableHead>
                   <TableRow>
-                    <TableCell colSpan={7} align="center">
-                      No users found.
-                    </TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>{t('firstName')}</TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>{t('lastName')}</TableCell>
+                    <TableCell>{t('email')}</TableCell>
+                    <TableCell>{t('passwordField')}</TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>{t('phoneNumber')}</TableCell>
+                    <TableCell>{t('role')}</TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>{t('dateOfBirth')}</TableCell>
                   </TableRow>
-              )}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {successUsers?.length > 0 ? (
+                    successUsers.map((user, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{user.firstname}</TableCell>
+                        <TableCell>{user.lastname}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.password}</TableCell>
+                        <TableCell>{user.phoneNumber}</TableCell>
+                        <TableCell>{getRoleName(user.roleId, t)}</TableCell>
+                        <TableCell>{new Date(user.dateofbirth).toLocaleDateString()}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center">
+                        {t('noUsersFound')}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
             </TableContainer>
           </Box>
         )}
+
  
         {activeTab === 'error' && (
           <Box mt={3}>
@@ -151,14 +154,14 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
-                    <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>First Name</TableCell>
-                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Last Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Password</TableCell>
-                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Phone Number</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>Date of Birth</TableCell>
-                  <TableCell sx={{ minWidth: 180 }}>Reason</TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>{t('firstName')}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>{t('lastName')}</TableCell>
+                  <TableCell>{t('email')}</TableCell>
+                  <TableCell>{t('passwordField')}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>{t('phoneNumber')}</TableCell>
+                  <TableCell>{t('role')}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 120 }}>{t('dateOfBirth')}</TableCell>
+                  <TableCell sx={{ minWidth: 180 }}>{t('reason')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -170,7 +173,7 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
                     <TableCell> {item.user.email}</TableCell>
                     <TableCell>{item.user.password}</TableCell>
                     <TableCell>{item.user.phoneNumber}</TableCell>  
-                    <TableCell>{getRoleName(item.user.roleId)}</TableCell>
+                    <TableCell>{getRoleName(item.user.roleId, t)}</TableCell>
                     <TableCell>{new Date(item.user.dateofbirth).toLocaleDateString()}</TableCell>
                     <TableCell sx={{ minWidth: 180,color:'red', fontWeight:'bold' }}>
                         {item.errors}
@@ -180,7 +183,7 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
                 ) : (
                   <TableRow>
                     <TableCell colSpan={8} align="center">
-                      No users found.
+                      {t('noUsersFound')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -193,13 +196,13 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
  
       <DialogActions>
         <Button onClick={handleClose} color='primary' variant="outlined">
-          Close
+          {t('close')}
         </Button>
         <Button
           onClick={handleProcess}
           variant="contained"
         >
-          Process
+          {t('process')}
         </Button>
       </DialogActions>
     </Dialog>
