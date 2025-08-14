@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {Dialog,DialogTitle,DialogContent,DialogActions,Button,TextField} from '@mui/material';
 import { toast } from 'react-toastify';
 import api from '../api/axiosInstance';
+import useLanguage from '../hooks/useLanguage';
  
 interface EditToDateDialogProps {
   open: boolean;
@@ -12,6 +13,7 @@ interface EditToDateDialogProps {
 }
  
 const EditToDateDialog: React.FC<EditToDateDialogProps> = ({open,onClose,currentToDate,bookingId,onSuccess,}) => {
+  const {t} = useLanguage();
     const [ToDate, setToDate] = useState<string>('');
  
     useEffect(() => {
@@ -22,11 +24,11 @@ const EditToDateDialog: React.FC<EditToDateDialogProps> = ({open,onClose,current
     try {
       await api.put(`/Booking?bookingId=${bookingId}&toDate=${ToDate}`);
 
-      toast.success('To Date updated successfully!');
+      toast.success(t('toDateUpdatedSuccess'));
       onClose();
       onSuccess();
     } catch (error) {
-      toast.error('Failed to update To Date.');
+      toast.error(t('toDateUpdatedFail'));
       console.error(error);
     }
   };
@@ -38,7 +40,7 @@ const EditToDateDialog: React.FC<EditToDateDialogProps> = ({open,onClose,current
       sx={{
           background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
         }}
-      >Edit To Date</DialogTitle>
+      >{t('editToDate')}</DialogTitle>
         <DialogContent>
             <input
                 type="date"
@@ -49,8 +51,8 @@ const EditToDateDialog: React.FC<EditToDateDialogProps> = ({open,onClose,current
             />
         </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary" variant="outlined">Cancel</Button>
-        <Button onClick={handleUpdate} variant="contained" color="primary">Save Changes</Button>
+        <Button onClick={onClose} color="primary" variant="outlined">{t('cancel')}</Button>
+        <Button onClick={handleUpdate} variant="contained" color="primary">{t('saveChanges')}</Button>
       </DialogActions>
     </Dialog>
   );

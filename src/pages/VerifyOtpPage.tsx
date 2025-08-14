@@ -9,6 +9,7 @@ import { updateUserLanguage } from "../api/userApi";
 import useLanguage from "../hooks/useLanguage";
 
 const VerifyOtpPage = () => {
+  const {t} = useLanguage();
   const [otp, setOtp] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { currentLanguage } = useLanguage();
@@ -38,7 +39,7 @@ const VerifyOtpPage = () => {
 
   useEffect(() => {
     if (!email) {
-        toast.error("Session expired or invalid access. Please sign in again to proceed.");
+        toast.error(t("sessionExpired"));
       navigate("/", { replace: true });
     }
   }, [email, navigate]);
@@ -47,7 +48,7 @@ const VerifyOtpPage = () => {
  
   const handleVerify = async () => {
     if (otp.length !== 6) {
-      toast.error("OTP must be 6 digits");
+      toast.error(t("otpLengthError"));
       return;
     }
 
@@ -59,21 +60,15 @@ const VerifyOtpPage = () => {
       const storage = rememberMe ? localStorage : sessionStorage;
       storage.setItem("jwt_token", token);
 
-      const loggedInUserId = getUserIdFromToken();
-      if (loggedInUserId) {
-        updateUserLanguage(loggedInUserId, currentLanguage)
-          .catch(err => console.error("Error updating language after login:", err));
-      }
-
       const from = location.state?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });
-      toast.success("Login successful");
+      toast.success(t("loginSuccess"));
  
     } catch (error: any) {
       const message =
+        t("otpVerificationFailed") ||
         error?.response?.data?.message ||
-        error?.message ||
-        "OTP verification failed";
+        error?.message;
       toast.error(message);
     }finally {
         setIsSubmitting(false); 
@@ -95,17 +90,17 @@ const VerifyOtpPage = () => {
             <div className="mb-6 text-center">
             <div className="inline-flex items-center gap-2">
                 <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
-                <h2 className="text-3xl font-bold text-[#00092a]">User Management</h2>
+                <h2 className="text-3xl font-bold text-[#00092a]">{t('userManagement')}</h2>
             </div>
             </div>
 
             <div className="mb-5">
                 <h3 className="text-xl font-bold flex  items-center  mt-1 mb-3">              
                     {/* <img src={EmailIcon} alt="logo" className="w-10 h-10 me-3" /> */}
-                    Email Verification
+                    {t("emailVerificationTitle")}
                 </h3>
                 <p className="text-gray-600">
-                    Please enter the 6-digit one-time password (OTP) we sent to your registered email address: <span className="font-medium">{email}</span>
+                    {t("emailVerificationDescription")} <span className="font-medium">{email}</span>
                 </p>
 
             </div> 
@@ -129,11 +124,11 @@ const VerifyOtpPage = () => {
                 disabled={isSubmitting}
                 className="w-full  bg-blue-600 text-white mt-5 py-3 rounded-lg font-semibold text-[18px] hover:bg-blue-700 transition duration-200 disabled:opacity-60"
             >
-            Verify & Continue
+            {t("verifyButton")}
             </button>
             <div className="text-center mt-4">
                 <Link to="/" className="text-blue-600 hover:underline">
-                Back to Login
+                {t('backToLogin')}
                 </Link>
             </div>
         </div>

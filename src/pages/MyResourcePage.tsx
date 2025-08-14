@@ -17,6 +17,7 @@ import BookingFormDialog from '../components/BookingFormDialog';
 import dayjs from "dayjs";
 import Loader from '../components/Loader';
 import EditToDateDialog from '../components/EditToDateDialog';
+import useLanguage from '../hooks/useLanguage';
 
 interface Booking {
   id: number;
@@ -32,6 +33,7 @@ type SortColumn = 'resourceName' | 'quantity' | 'fromDate' | 'toDate';
 type DateFilter = 'allTime' | 'today' | 'thisweek' | 'thismonth';
 
 const MyResourcePage: React.FC = () => {
+  const {t} = useLanguage();
   const [tab, setTab] = useState<'active' | 'history'>('active');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [totalBookings, setTotalBookings] = useState(0);
@@ -82,7 +84,7 @@ const MyResourcePage: React.FC = () => {
           setTotalBookings(data.data.totalCount);
         
       } catch (error) {
-        toast.error("Failed to fetch bookings.");
+        toast.error(t('failedToFetchBookings'));
         setBookings([]);
         setTotalBookings(0);
         await delay(500);
@@ -148,23 +150,22 @@ const MyResourcePage: React.FC = () => {
 
   const handleBookingFormSubmit = async (formData: CreateBookingPayload) => {
     if (!userId) {
-      toast.error("User not authenticated.");
+      toast.error(t('userNotAuthenticated'));
       return;
     }
     try {
       // Ensure fromDate and toDate are not null before sending
       if (!formData.fromDate || !formData.toDate) {
-        toast.error("Both 'From Date' and 'To Date' are required.");
+        toast.error(t('fromToDateRequired'));
         return;
       }
 
       await createBooking(formData); 
-      toast.success("Booking added successfully!");
+      toast.success(t('bookingAddedSuccess'));
       fetchBookings(); // Refresh the list
       setIsBookingFormOpen(false);
     } catch (error) {
-      toast.error("Failed to add booking.");
-      console.error("Booking submission error:", error);
+      toast.error(t('failedToAddBooking'));
     }
   };
 
@@ -190,7 +191,7 @@ const MyResourcePage: React.FC = () => {
               gap: 1
             }}
           >
-            My Resources
+            {t('myResources')}
           </Typography>
 
           <Box
@@ -204,7 +205,7 @@ const MyResourcePage: React.FC = () => {
           >
             <input
               type="text"
-              placeholder="Search resource..."
+              placeholder={t('searchResourcePlaceholder')}
               value={searchQuery}
               onChange={handleSearchChange}
               style={{
@@ -221,10 +222,10 @@ const MyResourcePage: React.FC = () => {
                 onChange={handleDateFilterChange}
                 sx={{ height: '42px' }}
               >
-                <MenuItem value="allTime">All Time</MenuItem>
-                <MenuItem value="today">Today</MenuItem>
-                <MenuItem value="thisweek">This Week</MenuItem>
-                <MenuItem value="thismonth">This Month</MenuItem>
+                <MenuItem value="allTime">{t('allTime')}</MenuItem>
+                <MenuItem value="today">{t('today')}</MenuItem>
+                <MenuItem value="thisweek">{t('thisWeek')}</MenuItem>
+                <MenuItem value="thismonth">{t('thisMonth')}</MenuItem>
               </Select>
             </FormControl>
             <Button
@@ -234,7 +235,7 @@ const MyResourcePage: React.FC = () => {
               onClick={handleAddBooking}
               sx={{ height: '42px', width: { xs: '100%', sm: 'auto' }, whiteSpace: 'nowrap', overflow: 'hidden', minWidth: '160px' }}
             >
-              Book Resource
+              {t('bookResource')}
             </Button>
           </Box>
         </Box>
@@ -245,14 +246,14 @@ const MyResourcePage: React.FC = () => {
             startIcon={<StorageIcon />}
             onClick={() => {  if (tab !== 'active') {setLoading(true); setTab('active'); setPage(0); }}}
           >
-            Active Resource
+            {t('activeResource')}
           </Button>
           <Button
             variant={tab === 'history' ? 'contained' : 'outlined'}
             startIcon={<HistoryIcon />}
             onClick={() => {  if (tab !== 'history') {setLoading(true);setTab('history'); setPage(0); }}}
           >
-            Resource History
+            {t('resourceHistory')}
           </Button>
         </Box>
 
@@ -267,7 +268,7 @@ const MyResourcePage: React.FC = () => {
                       direction={sortColumn === 'resourceName' ? sortDirection : 'asc'}
                       onClick={() => handleSortClick('resourceName')}
                     >
-                      Resource
+                      {t('resource')}
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sortDirection={sortColumn === 'quantity' ? sortDirection : false}>
@@ -276,7 +277,7 @@ const MyResourcePage: React.FC = () => {
                       direction={sortColumn === 'quantity' ? sortDirection : 'asc'}
                       onClick={() => handleSortClick('quantity')}
                     >
-                      Quantity
+                      {t('quantity')}
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'fromDate' ? sortDirection : false}>
@@ -285,7 +286,7 @@ const MyResourcePage: React.FC = () => {
                       direction={sortColumn === 'fromDate' ? sortDirection : 'asc'}
                       onClick={() => handleSortClick('fromDate')}
                     >
-                      From Date
+                      {t('fromDate')}
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }} sortDirection={sortColumn === 'toDate' ? sortDirection : false}>
@@ -294,10 +295,10 @@ const MyResourcePage: React.FC = () => {
                       direction={sortColumn === 'toDate' ? sortDirection : 'asc'}
                       onClick={() => handleSortClick('toDate')}
                     >
-                      To Date
+                      {t('toDate')}
                     </TableSortLabel>
                   </TableCell>
-                  {tab === 'active' && <TableCell>Actions</TableCell>}
+                  {tab === 'active' && <TableCell>{t("actions")}</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -321,7 +322,7 @@ const MyResourcePage: React.FC = () => {
                   !loading && (
                     <TableRow>
                       <TableCell colSpan={5} align="center">
-                        No resources found.
+                        {t('noResourcesFound')}
                       </TableCell>
                     </TableRow>
                   )
@@ -346,7 +347,7 @@ const MyResourcePage: React.FC = () => {
         onClose={() => setIsBookingFormOpen(false)}
         onSubmit={(formData) => {
           if (!userId) {
-            toast.error("User not authenticated.");
+            toast.error(t('userNotAuthenticated'));
             return;
           }
 

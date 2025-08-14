@@ -272,7 +272,7 @@ const UserListPage: React.FC = () => {
           >
             <input
               type="text"
-              placeholder="Search user..."
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={handleSearchChange}
               style={{
@@ -288,7 +288,7 @@ const UserListPage: React.FC = () => {
                   color="primary"
                   variant="contained"
                    onClick={() => setOpenMfaDialog(true)}
-                  sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'140px'}}
+                  sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'180px'}}
                 >
                 {t('manageMfa')}
               </Button>
@@ -302,7 +302,7 @@ const UserListPage: React.FC = () => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleAddUser}
-                sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'140px'}}
+                sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'180px'}}
               >
                  {t('addUser')}
               </Button>

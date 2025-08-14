@@ -77,7 +77,7 @@ const Navbar: React.FC = () => {
         {/* Logo/Brand */}
         <div className="navbar-brand  gap-2">
           <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
-          <span className="brand-text">User Management</span>
+          <span className="brand-text">{t('userManagement')}</span>
         </div>
 
         {/* Mobile menu button */}
@@ -126,7 +126,7 @@ const Navbar: React.FC = () => {
                 onClick={closeMenu}
               >
                 <i className="bi bi-gear me-2"></i>
-                Resource Management
+                {t("resourceManagement")}
               </Link>
             )}
 
@@ -137,7 +137,7 @@ const Navbar: React.FC = () => {
                 onClick={closeMenu}
               >
                 <i className="bi bi-list-task me-2"></i>
-                My Resources
+                {t('myResources')}
               </Link>
             )}
 
@@ -160,7 +160,7 @@ const Navbar: React.FC = () => {
             className="logout-btn"
             onClick={handleLogoutClick}
           >
-            Logout
+            {t('logout')}
           </button>
         </div>
       </div>
@@ -177,23 +177,23 @@ const Navbar: React.FC = () => {
           className="text-xl font-bold text-center text-white"
           sx={{
             background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
-          }}>Confirm Logout</DialogTitle>
+          }}>{t('confirmLogout')}</DialogTitle>
         <DialogContent sx={{ pt: 5 }}>
           <Box display="flex" flexDirection="column" alignItems="center">
             <Typography
               id="confirm-dialog-description"
               sx={{pt:5, pb: 5, fontSize: '1rem', color: '#333', textAlign: 'center' }}
             >
-              Are you sure you want to logout?
+              {t('confirmLogoutMessage')}
             </Typography>
           </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleLogoutCancel} color="primary" variant="outlined">
-            Cancel
+            {t('cancel')}
           </Button>
           <Button onClick={handleLogoutConfirm} color="error" variant="contained">
-            Logout
+            {t('logout')}
           </Button>
         </DialogActions>
       </Dialog>

@@ -7,9 +7,9 @@ import { useNavigate, Link , useLocation} from "react-router-dom";
 import { toast } from "react-toastify";
 import { HeroImg } from "../assets/assets";
 import useLanguage from "../hooks/useLanguage";
-import { getUserIdFromToken } from "../helpers/authHelpers";
-import { updateUserLanguage } from "../api/userApi";
 import LanguageIcon from '@mui/icons-material/Language';
+import { getUserIdFromToken } from "../helpers/authHelpers";
+import { getUserLanguage } from "../api/userApi";
 
 interface ILoginRequest {
   email: string;
@@ -21,7 +21,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const {t, currentLanguage, changeLanguage } = useLanguage();
+  const {t, currentLanguage, changeLanguage, setCurrentLanguage } = useLanguage();
 
   const LoginSchema = Yup.object().shape({
     email: Yup.string().email(t('invalidEmail')).required(t('emailRequired')),
@@ -32,7 +32,7 @@ const LoginPage = () => {
 
   const initialValues: ILoginRequest = {
     email: "",
-    password: "", 
+    password: "",   
     rememberMe: false,
   };
 
@@ -56,12 +56,19 @@ const LoginPage = () => {
 
       const loggedInUserId = getUserIdFromToken();
       if (loggedInUserId) {
-        updateUserLanguage(loggedInUserId, currentLanguage)
-          .catch(err => console.error(t('updateLanguageError'), err));
+        getUserLanguage(loggedInUserId)
+          .then(res => {
+            const lang = res.data.language || 'en'; 
+            changeLanguage(lang);
+            setCurrentLanguage(lang); 
+            toast.success(`Your profile language preference is ${lang}, so we’ve applied it.`);
+          })
+          .catch(err => console.error('Error fetching user language:', err));
       }
 
       const from = location.state?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });
+      
       toast.success(t("loginSuccess"));
     } catch (err: any) {
       const errorMessage =

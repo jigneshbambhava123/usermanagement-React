@@ -5,19 +5,7 @@ import { toast } from "react-toastify";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { resetPassword } from "../api/authApi";
 import { HeroImg } from "../assets/assets";
-
-const validationSchema = Yup.object().shape({
-  newPassword: Yup.string()
-    .min(8, "Password must be at least 8 characters")
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-    )
-    .required("New Password is required"),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("newPassword")], "Passwords must match")
-    .required("Confirm your password"),
-});
+import useLanguage from "../hooks/useLanguage";
 
 interface FormValues {
   newPassword: string;
@@ -25,6 +13,7 @@ interface FormValues {
 }
 
 const ResetPasswordPage: React.FC = () => {
+  const {t} = useLanguage();
   const [loading, setLoading] = useState(false);
   const [showPasswords, setShowPasswords] = useState({ new: false, confirm: false });
   const navigate = useNavigate();
@@ -38,6 +27,19 @@ const ResetPasswordPage: React.FC = () => {
     confirmPassword: "",
   };
 
+  const validationSchema = Yup.object().shape({
+    newPassword: Yup.string()
+      .min(8, t('passwordMin'))
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+        t('passwordPattern')
+      )
+      .required(t('newPasswordRequired')),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("newPassword")], t('confirmPasswordMatch'))
+      .required(t('confirmPasswordRequired')),
+  });
+
   const handleSubmit = async (values: FormValues) => {
     setLoading(true);
     try {
@@ -47,11 +49,11 @@ const ResetPasswordPage: React.FC = () => {
         newPassword: values.newPassword,
         confirmPassword: values.confirmPassword,
       });
-      toast.success("Password reset successful! Please log in.");
+      toast.success(t('resetSuccess'));
       navigate("/");
     } catch (error: any) {
       toast.error(
-        error.response?.data?.message || "Failed to reset password."
+        error.response?.data?.message || t('resetError')
       );
     } finally {
       setLoading(false);
@@ -73,15 +75,15 @@ const ResetPasswordPage: React.FC = () => {
           <div className="mb-6 text-center">
             <Link to="/" className="inline-flex items-center gap-2">
               <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
-              <h2 className="text-3xl font-bold text-[#00092a]">User Management</h2>
+              <h2 className="text-3xl font-bold text-[#00092a]">{t('userManagement')}</h2>
             </Link>
           </div>
 
           {/* Title */}
           <div className="mb-4">
-            <h3 className="text-xl font-bold mb-1">Reset Password</h3>
+            <h3 className="text-xl font-bold mb-1">{t('resetPasswordTitle')}</h3>
             <p className="text-gray-600">
-              Enter your new password below to reset your account password.
+              {t('resetPasswordDescription')}
             </p>
           </div>
 
@@ -97,7 +99,7 @@ const ResetPasswordPage: React.FC = () => {
                   <Field
                     type={showPasswords.new ? "text" : "password"}
                     name="newPassword"
-                    placeholder="New Password"
+                    placeholder={t('newPassword')}
                     className={`w-full p-3 border ${
                       errors.newPassword && touched.newPassword
                         ? "border-red-500 focus:ring-red-500"
@@ -127,7 +129,7 @@ const ResetPasswordPage: React.FC = () => {
                   <Field
                     type={showPasswords.confirm ? "text" : "password"}
                     name="confirmPassword"
-                    placeholder="Confirm Password"
+                    placeholder={t('confirmPassword')}
                     className={`w-full p-3 border ${
                       errors.confirmPassword && touched.confirmPassword
                         ? "border-red-500 focus:ring-red-500"
@@ -160,13 +162,13 @@ const ResetPasswordPage: React.FC = () => {
                   disabled={loading}
                   className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-[18px] hover:bg-blue-700 transition duration-200 disabled:opacity-60 flex justify-center items-center gap-2"
                 >
-                  {loading ? "Resetting..." : "Reset Password"}
+                  {loading ? t('resetting') : t('resetPasswordTitle')}
                 </button>
 
                 {/* Back to Login */}
                 <div className="text-center mt-4">
                   <Link to="/" className="text-blue-600 hover:underline">
-                    Back to Login
+                    {t('backToLogin')}
                   </Link>
                 </div>
               </Form>

@@ -9,6 +9,7 @@ import { getResources } from '../api/resourceApi';
 import type { Resource } from '../api/resourceApi';
 import { toast } from 'react-toastify';
 import { useSignalR } from '../signalr/useSignalR';
+import useLanguage from '../hooks/useLanguage';
 
 interface BookingFormData {
   resourceId: number | '';
@@ -30,6 +31,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
     fromDate: null,
     toDate: null,
   });
+  const {t} = useLanguage();
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -62,8 +64,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
       const res = await getResources();
       setResources(res.data);
     } catch (error) {
-      toast.error("Failed to fetch resources.");
-      console.error("Failed to fetch resources:", error);
+      toast.error(t('failedToFetchResources'));
     }
   }, []);
 
@@ -85,30 +86,30 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
     const newErrors: {[key: string]: string} = {};
     
     if (!formData.resourceId) {
-      newErrors.resourceId = 'Resource is required';
+      newErrors.resourceId = t('resourceRequired');
     }
     
     if (!formData.quantity) {
-      newErrors.quantity = 'Quantity is required';
+      newErrors.quantity = t('quantityRequired');
     } else if (Number(formData.quantity) < 1) {
-      newErrors.quantity = 'Quantity must be at least 1';
+      newErrors.quantity = t('quantityMinOne');
     }
     
     if (!formData.fromDate) {
-      newErrors.fromDate = 'From date is required';
+      newErrors.fromDate = t('fromDateRequired');
     }
     
     if (!formData.toDate) {
-      newErrors.toDate = 'To date is required';
+      newErrors.toDate = t('toDateRequired');
     }
     
     if (formData.fromDate && formData.toDate && formData.fromDate > formData.toDate) {
-      newErrors.toDate = 'To date cannot be before from date';
+      newErrors.toDate = t('toDateBeforeFromDate');
     }
 
     const availableQuantity = selectedResource ? selectedResource.quantity - selectedResource.usedQuantity : 0;
     if (selectedResource && Number(formData.quantity) > availableQuantity) {
-      newErrors.quantity = `Requested quantity exceeds available quantity (${availableQuantity})`;
+      newErrors.quantity = t('quantityExceedsAvailable', { available: availableQuantity });
     }
 
     setErrors(newErrors);
@@ -175,7 +176,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
       sx={{
         background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
       }}>
-        Book Resource</DialogTitle>
+        {t('bookResource')}</DialogTitle>
       <DialogContent>
         <div className="space-y-4 mt-4">
           {/* Resource Select */}
@@ -189,7 +190,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
             }`}
             sx={{ mt: 1 }}
           >
-            <InputLabel id="resource-select-label">Resource</InputLabel>
+            <InputLabel id="resource-select-label">{t('resource')}</InputLabel>
             <Select
               labelId="resource-select-label"
               id="resource-select"
@@ -217,7 +218,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
           <div>
             <input
               type="text"
-              placeholder="Available Quantity"
+              placeholder={t('availableQuantity')}
               value={availableQuantityToDisplay}
               disabled
               className="w-full p-3 mt-3 border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300"
@@ -228,7 +229,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
           <div>
             <input
               type="number"
-              placeholder="Enter Quantity"
+              placeholder={t('enterQuantity')}
               value={formData.quantity}
               onChange={handleQuantityChange}
               min="1"
@@ -250,7 +251,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
             <div className="space-y-4">
               <div>
                 <DatePicker
-                  label="From Date"
+                  label={t('fromDate')}
                   value={formData.fromDate}
                   onChange={(date: Date | null) => handleDateChange(date, 'fromDate')}
                   minDate={today}
@@ -286,7 +287,7 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
 
               <div>
                 <DatePicker
-                  label="To Date"
+                  label={t('toDate')}
                   value={formData.toDate}
                   onChange={(date: Date | null) => handleDateChange(date, 'toDate')}
                   minDate={formData.fromDate || today}
@@ -326,10 +327,10 @@ const BookingFormDialog: React.FC<BookingFormDialogProps> = ({ open, onClose, on
       
       <DialogActions>
         <Button onClick={onClose} color="primary" variant="outlined">
-          Cancel
+          {t('cancel')}
         </Button>
         <Button onClick={handleSubmit} color="primary" variant="contained">
-          Save
+          {t('save')}
         </Button>
       </DialogActions>
     </Dialog>

@@ -5,27 +5,28 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { sendResetLink } from "../api/authApi";
 import { HeroImg } from "../assets/assets";
- 
-const validationSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Email is required"),
-});
+import useLanguage from "../hooks/useLanguage";
  
 const ForgotPasswordPage = () => {
+  const {t} = useLanguage();
   const [loading, setLoading] = useState(false);
-      const navigate = useNavigate();
+  const navigate = useNavigate();
 
- 
+  const validationSchema = Yup.object().shape({
+    email: Yup.string().email(t("invalidEmail")).required(t("emailRequired")),
+  });
+
   const handleSubmit = async (values: { email: string }) => {
     
     setLoading(true);
     try {
       const response = await sendResetLink({ email: values.email , baseUrl :'http://localhost:5173'});
  
-      toast.success(response.data.message || "Reset link sent to your email.");
+      toast.success(response.data.message || t("resetLinkSuccess"));
       navigate("/");
     } catch (error: any) {
       toast.error(
-        error.response?.data?.message || "Failed to send reset link. Please try again."
+        error.response?.data?.message || t("resetLinkFailure")
       );
     } finally {
       setLoading(false);
@@ -47,15 +48,15 @@ const ForgotPasswordPage = () => {
           <div className="mb-6 text-center">
             <Link to="/" className="inline-flex items-center gap-2">
               <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
-              <h2 className="text-3xl font-bold text-[#00092a]">User Management</h2>
+              <h2 className="text-3xl font-bold text-[#00092a]">{t('userManagement')}</h2>
             </Link>
           </div>
 
           {/* Header & Description */}
           <div className="mb-6">
-            <h3 className="text-xl font-bold mb-2">Forgot Password</h3>
+            <h3 className="text-xl font-bold mb-2">{t("forgotPasswordTitle")}</h3>
             <p className="text-gray-600">
-              Enter your email address and we’ll send you a password reset link.
+              {t("forgotPasswordDescription")}
             </p>
           </div>
 
@@ -71,7 +72,7 @@ const ForgotPasswordPage = () => {
                   <Field
                     type="email"
                     name="email"
-                    placeholder="Email address"
+                    placeholder={t("emailAddress")}
                     className={`w-full p-3 border ${
                       errors.email && touched.email
                         ? "border-red-500 focus:ring-red-500"
@@ -90,12 +91,12 @@ const ForgotPasswordPage = () => {
                   disabled={loading}
                   className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-[18px] hover:bg-blue-700 transition duration-200 disabled:opacity-60 flex justify-center items-center gap-2"
                 >
-                  {loading ? "Sending..." : "Send Reset Link"}
+                  {loading ? t("sending") : t("sendResetLink")}
                 </button>
 
                 <div className="text-center mt-4">
                   <Link to="/" className="text-blue-600 hover:underline">
-                    Back to Login
+                    {t("backToLogin")}
                   </Link>
                 </div>
               </Form>

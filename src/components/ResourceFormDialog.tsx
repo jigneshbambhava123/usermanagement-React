@@ -9,6 +9,7 @@ import {
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import type { Resource } from '../api/resourceApi';
+import useLanguage from '../hooks/useLanguage';
 
 type CreateResourceFormData = Omit<Resource, 'id' | 'usedQuantity'>;
 type UpdateResourceFormData = Omit<Resource, 'usedQuantity'>;
@@ -26,6 +27,7 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
   resource,
   onSubmit
 }) => {
+  const {t} = useLanguage();
   const isEditMode = Boolean(resource);
 
   const initialValues = {
@@ -38,30 +40,30 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
 
   const validationSchema = Yup.object().shape({
     name: Yup.string()
-    .required('Name is required.')
-    .min(2, 'Name must be between 2 and 50 characters.')
-    .max(50, 'Name must be between 2 and 50 characters.')
-    .matches(
-      /^(?!.*[\x00-\x1F\x7F])[a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*$/,
-      'Name should only contain letters, numbers, underscores, and spaces between words. No leading/trailing spaces allowed.'
-    ),
-    description: Yup.string()
-        .max(500, 'Description too long'),
+      .required(t('nameRequired'))
+      .min(2, t('nameMinMax'))
+      .max(50, t('nameMinMax'))
+      .matches(
+        /^(?!.*[\x00-\x1F\x7F])[a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*$/,
+        t('namePattern')
+      ),
+    description: Yup.string().max(500, t('descriptionMax')),
     quantity: Yup.number()
-        .integer('Quantity must be an integer.')
-        .min(0, 'Please enter a valid quantity of zero or more.')
-        .required('Quantity is required.')
-         .test(
+      .integer(t('quantityInteger'))
+      .min(0, t('quantityMin'))
+      .required(t('quantityRequired'))
+      .test(
         'not-less-than-used',
-        `Quantity cannot be less than the currently used quantity (${usedQuantity}).`,
+        t('quantityNotLessThanUsed', { usedQuantity }),
         function (value) {
           if (resource && typeof value === 'number') {
             return value >= usedQuantity;
           }
-          return true; 
+          return true;
         }
       ),
-    });
+  });
+
 
   const handleSubmit = (values: typeof initialValues) => {
     if (isEditMode && resource) {
@@ -95,7 +97,7 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
         sx={{
           background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
         }}>
-        {isEditMode ? 'Edit Resource' : 'Add New Resource'}
+        {isEditMode ? t('editResource') : t('addNewResource')}
       </DialogTitle>
       <DialogContent>
         <Formik
@@ -112,7 +114,7 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
                   <Field
                     type="text"
                     name="name"
-                    placeholder="Resource Name"
+                    placeholder={t('resourceName')}
                     className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-200 ${
                       errors.name && touched.name
                         ? 'border-red-500 focus:ring-red-500'
@@ -131,7 +133,7 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
                   <Field
                     as="textarea"
                     name="description"
-                    placeholder="Description (optional)"
+                    placeholder={t('resourceDescription')}
                     rows={3}
                     className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-200 ${
                       errors.description && touched.description
@@ -151,7 +153,7 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
                   <Field
                     type="number"
                     name="quantity"
-                    placeholder="Quantity"
+                    placeholder={t('quantity')}
                     className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-200 ${
                       errors.quantity && touched.quantity
                         ? 'border-red-500 focus:ring-red-500'
@@ -168,10 +170,10 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
 
               <DialogActions>
                 <Button onClick={onClose} color="primary" variant="outlined">
-                  Cancel
+                   {t('cancel')}
                 </Button>
                 <Button type="submit" color="primary" variant="contained">
-                  {isEditMode ? 'Save Changes' : 'Add Resource'}
+                  {isEditMode ? t('saveChanges') : t('addResource')}
                 </Button>
               </DialogActions>
             </Form>

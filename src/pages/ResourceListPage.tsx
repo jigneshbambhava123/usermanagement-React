@@ -15,31 +15,15 @@ import { debounce } from 'lodash';
 import * as Yup from 'yup';
 import ResourceFormDialog from '../components/ResourceFormDialog';
 import Loader from '../components/Loader';
+import useLanguage from '../hooks/useLanguage';
 
 type CreateResourceFormData = Omit<Resource, 'id' | 'usedQuantity'>;
 type UpdateResourceFormData = Omit<Resource, 'usedQuantity'>;
 
-// Define the validation schema for inline editing
-const inlineValidationSchema = Yup.object().shape({
-  name: Yup.string()
-    .required('Name is required.')
-    .min(2, 'Name must be between 2 and 50 characters.')
-    .max(50, 'Name must be between 2 and 50 characters.')
-    .matches(
-      /^(?!.*[\x00-\x1F\x7F])[a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*$/,
-      'Name should only contain letters, numbers, underscores, and spaces between words. No leading/trailing spaces allowed.'
-    ),
-  description: Yup.string()
-    .max(500, 'Description too long')
-    .nullable(),
-  quantity: Yup.number()
-    .integer('Quantity must be an integer.')
-    .min(0, 'Please enter a valid quantity of zero or more.')
-    .required('Quantity is required.')
-    .typeError('Quantity must be a number.'),
-});
+
 
 const ResourceListPage: React.FC = () => {
+  const { t } = useLanguage();
   const [resources, setResources] = useState<Resource[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -82,7 +66,7 @@ const ResourceListPage: React.FC = () => {
     setTotal(res.data.totalCount);
       
     } catch {
-      toast.error("Failed to fetch resources.");
+      toast.error(t('fetchResourcesError'));
       setResources([]);
       setTotal(0);
       await delay(500);
@@ -129,18 +113,18 @@ const ResourceListPage: React.FC = () => {
     try {
         if ('id' in data) {
         await updateResource(data);
-        toast.success('Resource updated successfully.');
+        toast.success(t('resourceUpdated'));
         } else {
         await createResource(data);
-        toast.success('Resource added successfully.');
+        toast.success(t('resourceAdded'));
         }
         setIsFormOpen(false);
         fetchResources();
     } catch {
         if ('id' in data) {
-          toast.error('failed to update Resource.');
+          toast.error(t('resourceUpdateError'));
         } else {
-          toast.error('failed to add Resource.');
+          toast.error(t('resourceAddError'));
         }
     }
   };
@@ -154,11 +138,11 @@ const ResourceListPage: React.FC = () => {
     if (toDeleteId !== null) {
       try {
         await deleteResource(toDeleteId);
-        toast.success("Resource deleted successfully.");
+        toast.success(t('resourceDeleted'));
         setPage(0);
         fetchResources();
       } catch {
-        toast.error("Delete failed.");
+        toast.error(t('resourceDeleteError'));
       } finally {
         setToDeleteId(null);
         setConfirmOpen(false);
@@ -187,6 +171,26 @@ const ResourceListPage: React.FC = () => {
     setEditedValue(e.target.value);
   };
 
+  // Define the validation schema for inline editing
+  const inlineValidationSchema = Yup.object().shape({
+    name: Yup.string()
+      .required(t('nameRequired'))
+      .min(2, t('nameMinMax'))
+      .max(50, t('nameMinMax'))
+      .matches(
+        /^(?!.*[\x00-\x1F\x7F])[a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*$/,
+        t('namePattern')
+      ),
+    description: Yup.string()
+      .max(500, t('descriptionMax'))
+      .nullable(),
+    quantity: Yup.number()
+      .integer(t('quantityInteger'))
+      .min(0, t('quantityMin'))
+      .required(t('quantityRequired'))
+      .typeError(t('inlineQuantityType')),
+  });
+
   const handleBlur = async () => {
     if (!editingCell) return;
 
@@ -211,7 +215,7 @@ const ResourceListPage: React.FC = () => {
 
       if (field === 'quantity' && originalResource && typeof valueToValidate === 'number') {
         if (valueToValidate < originalResource.usedQuantity) {
-          toast.error("Quantity cannot be less than used quantity.");
+          toast.error(t('quantityLessThanUsed'));
           setEditingCell(null);
           setEditedValue('');
           return;
@@ -222,7 +226,7 @@ const ResourceListPage: React.FC = () => {
 
       if (originalResource && originalResource[field] !== valueToSend) {
         await updateResourceField(id, field as string, String(valueToSend));
-        toast.success(`${field} updated successfully.`);
+        toast.success(t('fieldUpdateSuccess', { field }));
         setResources(prevResources =>
           prevResources.map(res =>
             res.id === id ? { ...res, [field]: valueToSend } : res
@@ -231,7 +235,6 @@ const ResourceListPage: React.FC = () => {
       }
     } catch (error: any) {
       toast.error(error.message);
-      console.error(`Validation/Update failed for ${field}:`, error);
     } finally {
       setEditingCell(null);
       setEditedValue('');
@@ -267,7 +270,7 @@ const ResourceListPage: React.FC = () => {
               gap: 1,
             }}
           >
-            Resource Management
+            {t("resourceManagement")}
           </Typography>
 
           <Box
@@ -281,7 +284,7 @@ const ResourceListPage: React.FC = () => {
           >
             <input
               type="text"
-              placeholder="Search resource..."
+              placeholder={t("searchResourcePlaceholder")}
               value={searchQuery}
               onChange={handleResourceSearchChange}
               style={{
@@ -300,10 +303,10 @@ const ResourceListPage: React.FC = () => {
                 onClick={handleAddResource}
                 sx={{
                   height: '42px',
-                  width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'170px'
+                  width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'190px'
                 }}
               >
-                Add Resource
+                {t("addResource")}
               </Button>
             )}
           </Box>
@@ -320,17 +323,17 @@ const ResourceListPage: React.FC = () => {
                       direction={sortColumn === 'name' ? sortDirection : 'asc'}
                       onClick={() => handleSortClick('name')}
                     >
-                      Name
+                      {t("name")}
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell>Description</TableCell>
+                  <TableCell>{t("description")}</TableCell>
                   <TableCell sortDirection={sortColumn === 'quantity' ? sortDirection : false}>
                     <TableSortLabel
                       active={sortColumn === 'quantity'}
                       direction={sortColumn === 'quantity' ? sortDirection : 'asc'}
                       onClick={() => handleSortClick('quantity')}
                     >
-                      Quantity
+                      {t("quantity")}
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap', overflow: 'hidden' }} sortDirection={sortColumn === 'usedquantity' ? sortDirection : false}>
@@ -339,10 +342,10 @@ const ResourceListPage: React.FC = () => {
                       direction={sortColumn === 'usedquantity' ? sortDirection : 'asc'}
                       onClick={() => handleSortClick('usedquantity')}
                     >
-                      Booked Quantity
+                      {t("bookedQuantity")}
                     </TableSortLabel>
                   </TableCell>
-                  {isAdmin && <TableCell>Actions</TableCell>}
+                  {isAdmin && <TableCell>{t("actions")}</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -412,7 +415,7 @@ const ResourceListPage: React.FC = () => {
                   !loading && (
                     <TableRow>
                       <TableCell colSpan={isAdmin ? 5 : 4} align="center">
-                        No resources found.
+                        {t("noResourcesFound")}
                       </TableCell>
                     </TableRow>
                   )
@@ -446,23 +449,23 @@ const ResourceListPage: React.FC = () => {
         className="text-xl font-bold text-center text-white"
         sx={{
           background: 'linear-gradient(135deg, #667eea 0%, #2575ee 100%)'
-        }}>Confirm Delete</DialogTitle>
+        }}>{t("confirmDeleteTitle")}</DialogTitle>
         <DialogContent sx={{ pt: 5 }}>
           <Box display="flex" flexDirection="column" alignItems="center">
             <Typography
               id="confirm-dialog-description"
               sx={{ pt:5, pb: 5, fontSize: '1rem', color: '#333', textAlign: 'center' }}
             >
-              Are you sure you want to delete this resource?
+              {t("confirmResourceDeleteMessage")}
             </Typography>
           </Box>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'flex-end' }}>
           <Button onClick={() => setConfirmOpen(false)} color="primary" variant="outlined">
-            Cancel
+            {t("cancel")}
           </Button>
           <Button onClick={confirmDelete} color="error" variant="contained" autoFocus>
-            Delete
+            {t("delete")}
           </Button>
         </DialogActions>
       </Dialog>

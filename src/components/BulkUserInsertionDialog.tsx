@@ -15,11 +15,11 @@ interface BulkUserUploadDialogProps {
   onSubmit: () => void;
 }
 
-const getRoleName = (roleId: number, t: any) => {
+const getRoleName = (roleId: number) => {
   switch (roleId) {
-    case 1: return t('roleAdmin');
-    case 2: return t('roleUser');
-    default: return t('roleUnknown');
+    case 1: return "Admin";
+    case 2: return "User";
+    default: return "Unknown";
   }
 };
  
@@ -130,7 +130,7 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.password}</TableCell>
                         <TableCell>{user.phoneNumber}</TableCell>
-                        <TableCell>{getRoleName(user.roleId, t)}</TableCell>
+                        <TableCell>{getRoleName(user.roleId)}</TableCell>
                         <TableCell>{new Date(user.dateofbirth).toLocaleDateString()}</TableCell>
                       </TableRow>
                     ))
@@ -173,7 +173,7 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
                     <TableCell> {item.user.email}</TableCell>
                     <TableCell>{item.user.password}</TableCell>
                     <TableCell>{item.user.phoneNumber}</TableCell>  
-                    <TableCell>{getRoleName(item.user.roleId, t)}</TableCell>
+                    <TableCell>{getRoleName(item.user.roleId)}</TableCell>
                     <TableCell>{new Date(item.user.dateofbirth).toLocaleDateString()}</TableCell>
                     <TableCell sx={{ minWidth: 180,color:'red', fontWeight:'bold' }}>
                         {item.errors}

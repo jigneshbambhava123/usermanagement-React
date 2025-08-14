@@ -7,6 +7,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { registerUser } from "../api/authApi"; 
 import { HeroImg } from "../assets/assets";
+import useLanguage from "../hooks/useLanguage";
 
 interface RegisterFormValues {
   firstname: string;
@@ -18,42 +19,8 @@ interface RegisterFormValues {
   confirmPassword: string;
 }
 
-const RegisterSchema = Yup.object().shape({
-  firstname: Yup.string()
-    .min(2, "First name must be at least 2 characters long.")
-    .max(50, "First name must be at most 50 characters long.")
-    .matches(
-      /^[a-zA-Z0-9_]+$/,
-      "First name can only contain letters, numbers and underscore"
-    )
-    .required("First name is required"),
-  lastname: Yup.string()
-    .min(2, "Last name must be at least 2 characters long.")
-    .max(50, "Last name must be at most 50 characters long.")
-    .matches(
-      /^[a-zA-Z0-9_]+$/,
-      "Last name can only contain letters, numbers and underscore"
-    )
-    .required("Last name is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  phoneNumber: Yup.string()
-    .matches(/^[0-9]{10}$/, "Phone number must be 10 digits")
-    .required("Phone number is required"),
-  dateofbirth: Yup.date().required("Date of birth is required"),
-  password: Yup.string()
-    .min(8, "Password must be at least 8 characters")
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-    )
-    .required("Password is required"),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password")], "Passwords must match")
-    .required("Confirm your password"),
-  termsAccepted: Yup.boolean().oneOf([true], "You must accept the terms"),
-});
-
 const RegisterPage = () => {
+  const {t} = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
@@ -68,6 +35,38 @@ const RegisterPage = () => {
     confirmPassword: "",
   };
 
+  const RegisterSchema = Yup.object().shape({
+    firstname: Yup.string()
+      .min(2, t('firstNameMin'))
+      .max(50, t('firstNameMax'))
+      .matches(
+        /^[a-zA-Z0-9_]+$/,
+        t('firstNamePattern')
+      )
+      .required(t('firstNameRequired')),
+    lastname: Yup.string()
+      .min(2, t('lastNameMin'))
+      .max(50, t('lastNameMax'))
+      .matches(/^[a-zA-Z0-9_]+$/, t('lastNamePattern'))
+      .required(t('lastNameRequired')),
+    email: Yup.string().email(t('invalidEmail')).required(t('emailRequired')),
+    phoneNumber: Yup.string()
+      .matches(/^[0-9]{10}$/, t('phoneInvalid'))
+      .required(t('phoneRequired')),
+    dateofbirth: Yup.date()
+      .required(t('dobRequired')),
+    password: Yup.string()
+      .min(8, t('passwordMin'))
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+        t('passwordPattern')
+      )
+      .required(t('passwordRequired')),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password")], t('confirmPasswordMatch'))
+      .required(t('confirmPasswordRequired')),
+  });
+
   const handleSubmit = async (
     values: RegisterFormValues,
     { setSubmitting, resetForm }: FormikHelpers<RegisterFormValues>
@@ -79,12 +78,12 @@ const RegisterPage = () => {
         isActive: true,
       };
       await registerUser(payload);
-      toast.success("Registration successful");
+      toast.success(t('registrationSuccess'));
       resetForm();
       navigate("/");
     } catch (error: any) {
       toast.error(
-        error.response?.data?.message || "Registration failed. Try again."
+        t('registrationFail') || error.response?.data?.message  
       );
     } finally {
       setSubmitting(false);
@@ -110,16 +109,16 @@ const RegisterPage = () => {
         <div className="mb-6 text-center">
           <Link to="/Register" className="inline-flex items-center gap-2">
             <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
-            <h2 className="text-3xl font-bold text-[#00092a]">User Management</h2>
+            <h2 className="text-3xl font-bold text-[#00092a]">{t('userManagement')}</h2>
           </Link>
         </div>
 
         <div className="mb-4">
-            <h3 className="text-xl font-bold">Create Account</h3>
+            <h3 className="text-xl font-bold">{t("createAccount")}</h3>
             <p className="text-gray-600">
-                Already have an account?{" "}
+                {t('alreadyHaveAccount')}{" "}
                 <Link to="/" className="text-blue-600 hover:underline">
-                Sign in
+                {t('signIn')}
                 </Link>
             </p>
         </div>
@@ -139,7 +138,7 @@ const RegisterPage = () => {
                   <Field
                     type="text"
                     name="firstname"
-                    placeholder="First Name"
+                    placeholder={t('firstName')}
                     className={`w-full p-3 border ${
                       errors.firstname && touched.firstname
                         ? "border-red-500 focus:ring-red-500"
@@ -152,7 +151,7 @@ const RegisterPage = () => {
                   <Field
                     type="text"
                     name="lastname"
-                    placeholder="Last Name"
+                    placeholder={t('lastName')}
                     className={`w-full p-3 border ${
                       errors.lastname && touched.lastname
                         ? "border-red-500 focus:ring-red-500"
@@ -164,10 +163,11 @@ const RegisterPage = () => {
               </div>
 
               {/* Email */}
+              <div className="relative">
               <Field
                 type="email"
                 name="email"
-                placeholder="Email"
+                placeholder={t('email')}
                 className={`w-full p-3 border ${
                   errors.email && touched.email
                     ? "border-red-500 focus:ring-red-500"
@@ -175,12 +175,14 @@ const RegisterPage = () => {
                 } rounded-lg focus:outline-none focus:ring-2 transition duration-200`}
               />
               <ErrorMessage name="email" component="div" className="text-red-500 text-xs" />
+              </div>
 
               {/* Phone */}
+              <div className="relative">
               <Field
                 type="text"
                 name="phoneNumber"
-                placeholder="Phone Number"
+                placeholder={t('phoneNumber')}
                 className={`w-full p-3 border ${
                   errors.phoneNumber && touched.phoneNumber
                     ? "border-red-500 focus:ring-red-500"
@@ -188,6 +190,7 @@ const RegisterPage = () => {
                 } rounded-lg focus:outline-none focus:ring-2 transition duration-200`}
               />
               <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-xs" />
+              </div>
 
               {/* DOB */}
               <Field name="dateofbirth"> 
@@ -195,7 +198,7 @@ const RegisterPage = () => {
                   <TextField
                     {...field}
                     type="date"
-                    label="Date of Birth"
+                    label={t('dateOfBirth')}
                     fullWidth
                     InputLabelProps={{ shrink: true }} 
                     inputProps={{
@@ -213,7 +216,7 @@ const RegisterPage = () => {
                 <Field
                   type={showPassword ? "text" : "password"}
                   name="password"
-                  placeholder="Password"
+                  placeholder={t('passwordField')}
                   className={`w-full p-3 border ${
                     errors.password && touched.password
                       ? "border-red-500 focus:ring-red-500"
@@ -237,7 +240,7 @@ const RegisterPage = () => {
                 <Field
                   type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
-                  placeholder="Confirm Password"
+                  placeholder={t('confirmPassword')}
                   className={`w-full p-3 border ${
                     errors.confirmPassword && touched.confirmPassword
                       ? "border-red-500 focus:ring-red-500"
@@ -262,7 +265,7 @@ const RegisterPage = () => {
                 disabled={isSubmitting}
                 className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-[18px] hover:bg-blue-700 transition duration-200 disabled:opacity-60"
               >
-                {isSubmitting ? "Processing..." : "Create Account"}
+                {isSubmitting ? t('processingBtn') : t('createAccount')}
               </button>
             </Form>
           )}
