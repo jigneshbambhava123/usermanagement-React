@@ -52,7 +52,7 @@ const EditToDateDialog: React.FC<EditToDateDialogProps> = ({open,onClose,current
         </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="primary" variant="outlined">{t('cancel')}</Button>
-        <Button onClick={handleUpdate} variant="contained" color="primary">{t('saveChanges')}</Button>
+        <Button onClick={handleUpdate} variant="contained" sx={{fontSize: { xs: '13px'}}} color="primary">{t('saveChanges')}</Button>
       </DialogActions>
     </Dialog>
   );

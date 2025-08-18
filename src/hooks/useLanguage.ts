@@ -13,12 +13,23 @@ const useLanguage = () => {
         if (lang) {
             i18n.changeLanguage(lang);
         }
+
+        const onLanguageChanged = (lng: string) => {
+            setCurrentLanguage(lng);
+            localStorage.setItem('appLanguage', lng);
+        };
+
+        i18n.on('languageChanged', onLanguageChanged);
+
+        return () => {
+            i18n.off('languageChanged', onLanguageChanged);
+        };
     }, []);
 
     const changeLanguage = (lang: string) => {
         i18n.changeLanguage(lang);
-        setCurrentLanguage(lang);
-        localStorage.setItem('appLanguage', lang);
+        // setCurrentLanguage(lang);
+        // localStorage.setItem('appLanguage', lang);
     };
 
     return {

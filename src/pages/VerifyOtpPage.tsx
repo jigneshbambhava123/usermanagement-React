@@ -5,14 +5,14 @@ import { verifyOtp } from "../api/authApi";
 import { HeroImg } from "../assets/assets";
 import { MuiOtpInput } from 'mui-one-time-password-input';
 import { getUserIdFromToken } from "../helpers/authHelpers";
-import { updateUserLanguage } from "../api/userApi";
+import { getUserLanguage } from "../api/userApi";
 import useLanguage from "../hooks/useLanguage";
+import { Typography } from "@mui/material";
 
 const VerifyOtpPage = () => {
-  const {t} = useLanguage();
+  const {t,changeLanguage, setCurrentLanguage } = useLanguage();
   const [otp, setOtp] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { currentLanguage } = useLanguage();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,6 +45,19 @@ const VerifyOtpPage = () => {
   }, [email, navigate]);
 
   if (!email) return null;
+
+  const showLanguageToastr = (lang: string) => {
+    const language: Record<string, string> = {
+      en: "English",
+      hi: "Hindi",
+      bn: "Bengali",
+      de: "German",
+    };
+
+    const languageName = language[lang] || "English";
+
+    toast.success(t("languageApplied", { languageName }));
+  };
  
   const handleVerify = async () => {
     if (otp.length !== 6) {
@@ -60,9 +73,21 @@ const VerifyOtpPage = () => {
       const storage = rememberMe ? localStorage : sessionStorage;
       storage.setItem("jwt_token", token);
 
+      const loggedInUserId = getUserIdFromToken();
+      if (loggedInUserId) {
+        getUserLanguage(loggedInUserId)
+          .then(res => {
+            const lang = res.data.language || 'en'; 
+            changeLanguage(lang);
+            setCurrentLanguage(lang); 
+            toast.success(t("loginSuccess"));
+            showLanguageToastr(lang);
+          })
+          .catch(err => console.error('Error fetching user language:', err));
+      }
+
       const from = location.state?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });
-      toast.success(t("loginSuccess"));
  
     } catch (error: any) {
       const message =
@@ -90,7 +115,16 @@ const VerifyOtpPage = () => {
             <div className="mb-6 text-center">
             <div className="inline-flex items-center gap-2">
                 <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
-                <h2 className="text-3xl font-bold text-[#00092a]">{t('userManagement')}</h2>
+                <Typography
+                  variant="h2"
+                  sx={{
+                    fontWeight: 'bold',
+                    color: '#00092a', 
+                    fontSize: { xs: '23px', sm: '28px', md: '30px' },
+                  }}
+                >
+                  {t('userManagement')}
+                </Typography>  
             </div>
             </div>
 

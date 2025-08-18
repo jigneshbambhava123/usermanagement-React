@@ -217,7 +217,12 @@ const DashboardPage: React.FC = () => {
 
   return (
     <Box p={4} bgcolor="#f9f9f9">
-      <Typography variant="h4" fontWeight={700} color="primary" mb={2}>
+      <Typography variant="h4"  
+          sx={{
+            fontWeight: 700,
+            fontSize: { xs: '24px', sm: '28px',md: '32px' },
+            letterSpacing: '-0.5px',
+          }} color="primary" mb={2}>
         {t('dashboard')}
       </Typography>
 
@@ -260,7 +265,7 @@ const DashboardPage: React.FC = () => {
             >
               <CardContent sx={{ py: 3 }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Typography variant="h6" fontWeight={500}>
+                  <Typography variant="h6" fontWeight={500} sx={{fontSize: { xs: '18px', sm: '20px',md: '20px'}}}>
                     {stat.label}
                   </Typography>
                   {stat.icon}

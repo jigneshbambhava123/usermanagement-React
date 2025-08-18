@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import type {FormikHelpers} from "formik";
-import { TextField } from '@mui/material';
+import { TextField, Typography } from '@mui/material';
 import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -109,7 +109,16 @@ const RegisterPage = () => {
         <div className="mb-6 text-center">
           <Link to="/Register" className="inline-flex items-center gap-2">
             <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
-            <h2 className="text-3xl font-bold text-[#00092a]">{t('userManagement')}</h2>
+            <Typography
+              variant="h2"
+              sx={{
+                fontWeight: 'bold',
+                color: '#00092a', 
+                fontSize: { xs: '23px', sm: '28px', md: '30px' },
+              }}
+            >
+              {t('userManagement')}
+            </Typography>  
           </Link>
         </div>
 

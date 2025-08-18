@@ -295,10 +295,10 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
               <DialogActions  sx={{
                 backgroundColor: 'white'
               }}>
-                <Button onClick={onClose} color="primary" variant="outlined">
+                <Button onClick={onClose} color="primary" variant="outlined" sx={{fontSize: { xs: '12px'}}}>
                   {t('cancel')}
                 </Button>
-                <Button type="submit" variant="contained" color="primary">
+                <Button type="submit" variant="contained" color="primary" sx={{fontSize: { xs: '12px'}}}>
                   {isEditMode ? t('saveChanges') : t('addUser')}
                 </Button>
               </DialogActions>

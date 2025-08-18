@@ -169,10 +169,10 @@ const ResourceFormDialog: React.FC<ResourceFormDialogProps> = ({
               </div>
 
               <DialogActions>
-                <Button onClick={onClose} color="primary" variant="outlined">
+                <Button onClick={onClose} color="primary" variant="outlined" sx={{fontSize: { xs: '12px'}}}>
                    {t('cancel')}
                 </Button>
-                <Button type="submit" color="primary" variant="contained">
+                <Button type="submit" color="primary" variant="contained" sx={{fontSize: { xs: '12px'}}}>
                   {isEditMode ? t('saveChanges') : t('addResource')}
                 </Button>
               </DialogActions>

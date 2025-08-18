@@ -105,7 +105,7 @@
   "updateLanguageError": "Fehler Aktualisierung der Sprache nach dem Anmeldung",
   "changeLanguage": "Sprache ändern",
   "chooseLanguage": "Wählen Sie Ihre Sprache",
-
+  "languageApplied": "Ihre ausgewählte Profilsprache ist {{languageName}}. Daher wurde diese Präferenz vom System angewendet.",
 
   "_comment_userPage": "Dieser Abschnitt ist für die Benutzerlistenseite gilt",
   "title": "Benutzer",

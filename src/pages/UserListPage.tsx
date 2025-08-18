@@ -93,7 +93,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, onClose, onConfirm,
 };
 
 const UserListPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t , currentLanguage} = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [page, setPage] = useState(0);
@@ -241,9 +241,9 @@ const UserListPage: React.FC = () => {
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column',sm: 'column', md: 'row' },
+            flexDirection: { xs: 'column',sm: 'column', md: 'column', lg: 'row' },
             justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start',sm: 'flex-start', md: 'center' },
+            alignItems: { xs: 'flex-start',sm: 'flex-start', md: 'flex-start', lg: 'center' },
             pb:4,
             gap: 2
           }}
@@ -253,6 +253,8 @@ const UserListPage: React.FC = () => {
             color="primary"
             sx={{
               fontWeight: 700,
+              fontSize: { xs: '24px', sm: '28px',md: '32px' },
+              letterSpacing: '-0.5px',
               display: 'flex',
               alignItems: 'center',
               gap: 1
@@ -264,57 +266,84 @@ const UserListPage: React.FC = () => {
           <Box
             sx={{
               display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
+              flexDirection: { xs: 'column', sm: 'column',md: 'row' },
               alignItems: { sm: 'center' },
               gap: 2,
-              width: { xs: '100%', sm: 'auto' }
+              width: { xs: '100%', sm: '100%',md: 'auto' }
             }}
           >
-            <input
-              type="text"
-              placeholder={t('searchPlaceholder')}
-              value={searchQuery}
-              onChange={handleSearchChange}
-              style={{
-                padding: '8px',
-                borderRadius: '4px',
-                border: '1px solid #ccc',
-                width: '100%',
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: { sm: 'center' },
+                gap: 2,
+                width: { xs: '100%', sm: '100%',md: 'auto' }
               }}
-            />
+            >
+              <Box
+                component="input"
+                type="text"
+                placeholder={t('searchPlaceholder')}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                sx={{
+                  p: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  minWidth: '190px',
+                  width: {
+                    xs: '100%',
+                    sm: 'auto',
+                  },
+                }}
+              />
 
-            {isAdmin && (
-              <Button
-                  color="primary"
-                  variant="contained"
-                   onClick={() => setOpenMfaDialog(true)}
-                  sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'180px'}}
-                >
-                {t('manageMfa')}
-              </Button>
-            )}
-            <EnabledMfaDialog open={openMfaDialog} onClose={() => setOpenMfaDialog(false)} />
+              {isAdmin && (
+                <Button
+                    color="primary"
+                    variant="contained"
+                    onClick={() => setOpenMfaDialog(true)}
+                    sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'190px'}}
+                  >
+                  {t('manageMfa')}
+                </Button>
+              )}
+              <EnabledMfaDialog open={openMfaDialog} onClose={() => setOpenMfaDialog(false)} />
+            </Box>
 
-            {isAdmin && (
-              
-              <Button
-                color="primary"
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleAddUser}
-                sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'180px'}}
-              >
-                 {t('addUser')}
-              </Button>
-              
-            )}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: { sm: 'center' },
+                gap: 2,
+                width: { xs: '100%', sm: '100%',md: 'auto' }
+              }}
+            >
+                {isAdmin && (
+                  
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={handleAddUser}
+                    sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'199px'}}
+                  >
+                    {t('addUser')}
+                  </Button>
+                  
+                )}
 
-            <Button  color="primary" variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)} style={{ height: '42px',minWidth:'180px' }}>
-              {t('bulkAddUser')}
-            </Button>
-            <BulkUserInsertionDialog open={openDialog} onClose={() => setOpenDialog(false)} onSubmit={() => {
-                  fetchUsers();
-              }}/>
+                <Button  color="primary" variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)} style={{ height: '42px',
+                  minWidth:  currentLanguage === 'bn'? '230px' : currentLanguage === 'de'? '225px': currentLanguage === 'hi'? '181px' : '180px'
+                }}>
+                  {t('bulkAddUser')}
+                </Button>
+                <BulkUserInsertionDialog open={openDialog} onClose={() => setOpenDialog(false)} onSubmit={() => {
+                      fetchUsers();
+                  }}/>
+            </Box>
           </Box>
         </Box>
 

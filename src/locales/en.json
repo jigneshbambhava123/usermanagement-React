@@ -104,7 +104,7 @@
     "updateLanguageError": "Error updating language after login",
     "changeLanguage": "Change Language",
     "chooseLanguage": "Choose your language",
-
+    "languageApplied": "Your selected profile language is {{languageName}}. As such, this preference has been applied by the system.",
 
     "_comment_userPage": "This section is for the User List page",
     "title": "User",

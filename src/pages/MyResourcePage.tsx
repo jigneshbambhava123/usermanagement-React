@@ -186,6 +186,8 @@ const MyResourcePage: React.FC = () => {
             color="primary"
             sx={{
               fontWeight: 700,
+              fontSize: { xs: '24px', sm: '28px',md: '32px' },
+              letterSpacing: '-0.5px',
               display: 'flex',
               alignItems: 'center',
               gap: 1
@@ -233,7 +235,7 @@ const MyResourcePage: React.FC = () => {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleAddBooking}
-              sx={{ height: '42px', width: { xs: '100%', sm: 'auto' }, whiteSpace: 'nowrap', overflow: 'hidden', minWidth: '160px' }}
+              sx={{ height: '42px', width: { xs: '100%', sm: 'auto' }, whiteSpace: 'nowrap', overflow: 'hidden', minWidth: '160px',fontSize: { xs: '12px'} }}
             >
               {t('bookResource')}
             </Button>
@@ -242,6 +244,7 @@ const MyResourcePage: React.FC = () => {
 
         <Box sx={{ pb:3, display: 'flex', gap: 1 }}>
           <Button
+            sx={{fontSize: { xs: '12px'}}}
             variant={tab === 'active' ? 'contained' : 'outlined'}
             startIcon={<StorageIcon />}
             onClick={() => {  if (tab !== 'active') {setLoading(true); setTab('active'); setPage(0); }}}
@@ -249,6 +252,7 @@ const MyResourcePage: React.FC = () => {
             {t('activeResource')}
           </Button>
           <Button
+            sx={{fontSize: { xs: '12px'}}}
             variant={tab === 'history' ? 'contained' : 'outlined'}
             startIcon={<HistoryIcon />}
             onClick={() => {  if (tab !== 'history') {setLoading(true);setTab('history'); setPage(0); }}}

@@ -265,6 +265,8 @@ const ResourceListPage: React.FC = () => {
             color="primary"
             sx={{
               fontWeight: 600,
+              fontSize: { xs: '24px', sm: '28px',md: '28px' },
+              letterSpacing: '-0.5px',
               display: 'flex',
               alignItems: 'center',
               gap: 1,

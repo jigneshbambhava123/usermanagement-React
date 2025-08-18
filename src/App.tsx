@@ -20,40 +20,22 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { createTheme,ThemeProvider  } from '@mui/material'; 
 import VerifyOtpPage from './pages/VerifyOtpPage';
 import "./i18n"
+import * as locales from '@mui/material/locale';
+import useLanguage from './hooks/useLanguage';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2', 
-    },
-    error: {
-      main: '#d32f2f', 
-    },
-    success: {
-      main: '#2e7d32', 
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: "none"
-        }
-      }
-    },
-    MuiTableCell: {
-      styleOverrides: {
-        head: {
-          backgroundColor:"#2b88e6ff",
-          backgroundImage: `linear-gradient(135deg, #667eea 0%, #2575ee 100%)`,
-          fontWeight:"bold",
-          color:"white",
-        }
-      }
-    },
-    
+const getLanguage = (lang: string) => {
+  switch (lang) {
+    case 'hi':
+      return locales.hiIN;
+    case 'de':
+      return locales.deDE;
+    case 'bn':
+      return locales.bnBD;
+    case 'en':
+    default:
+      return locales.enUS;
   }
-});
+};
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -73,8 +55,6 @@ const AppRoutes = () => {
   ].includes(location.pathname.toLowerCase());
 
   const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname.toLowerCase()) || is404;
-
-  
 
   useEffect(() => {
     const token = getValidToken();
@@ -141,14 +121,46 @@ const AppRoutes = () => {
   );
 };
 
-const App: React.FC = () => (
-  <Router>
-    <ErrorBoundary>
-      <ThemeProvider theme={theme}>
-        <AppRoutes />
-      </ThemeProvider>
-    </ErrorBoundary>
-  </Router>
-);
+const App: React.FC = () => {
+  const { currentLanguage } = useLanguage();
+
+  const theme = useMemo(() => createTheme(
+    {
+      palette: {
+        primary: { main: '#1976d2' },
+        error: { main: '#d32f2f' },
+        success: { main: '#2e7d32' },
+      },
+      components: {
+        MuiButton: {
+          styleOverrides: {
+            root: { textTransform: 'none' },
+          },
+        },
+        MuiTableCell: {
+          styleOverrides: {
+            head: {
+              backgroundColor: "#2b88e6ff",
+              backgroundImage: `linear-gradient(135deg, #667eea 0%, #2575ee 100%)`,
+              fontWeight: "bold",
+              color: "white",
+            },
+          },
+        },
+      },
+    },
+    getLanguage(currentLanguage)
+  ), [currentLanguage]); 
+  
+  return (
+    <Router>
+      <ErrorBoundary> 
+        <ThemeProvider theme={theme}>
+          <AppRoutes />
+        </ThemeProvider>
+      </ErrorBoundary>
+    </Router>
+  );
+};
 
 export default App;

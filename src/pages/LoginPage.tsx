@@ -10,6 +10,7 @@ import useLanguage from "../hooks/useLanguage";
 import LanguageIcon from '@mui/icons-material/Language';
 import { getUserIdFromToken } from "../helpers/authHelpers";
 import { getUserLanguage } from "../api/userApi";
+import { Typography } from "@mui/material";
 
 interface ILoginRequest {
   email: string;
@@ -34,6 +35,19 @@ const LoginPage = () => {
     email: "",
     password: "",   
     rememberMe: false,
+  };
+
+  const showLanguageToastr = (lang: string) => {
+    const language: Record<string, string> = {
+      en: "English",
+      hi: "Hindi",
+      bn: "Bengali",
+      de: "German",
+    };
+
+    const languageName = language[lang] || "English";
+
+    toast.success(t("languageApplied", { languageName }));
   };
 
   const handleLogin = async (
@@ -61,7 +75,8 @@ const LoginPage = () => {
             const lang = res.data.language || 'en'; 
             changeLanguage(lang);
             setCurrentLanguage(lang); 
-            toast.success(`Your profile language preference is ${lang}, so we’ve applied it.`);
+            toast.success(t("loginSuccess"));
+            showLanguageToastr(lang);
           })
           .catch(err => console.error('Error fetching user language:', err));
       }
@@ -69,7 +84,6 @@ const LoginPage = () => {
       const from = location.state?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });
       
-      toast.success(t("loginSuccess"));
     } catch (err: any) {
       const errorMessage =
         err?.response?.data?.message || err?.message || t("loginFailed");
@@ -97,7 +111,16 @@ const LoginPage = () => {
         <div className="mb-6 text-center">
           <Link to="/" className="inline-flex items-center gap-2">
             <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
-            <h2 className="text-3xl font-bold text-[#00092a]">{t('userManagement')}</h2>
+            <Typography 
+              variant="h2"
+              sx={{
+                fontWeight: 'bold',
+                color: '#00092a', 
+                fontSize: { xs: '23px', sm: '28px', md: '30px' },
+              }}
+            >
+              {t('userManagement')}
+            </Typography>          
           </Link>
         </div>
 

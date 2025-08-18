@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { resetPassword } from "../api/authApi";
 import { HeroImg } from "../assets/assets";
 import useLanguage from "../hooks/useLanguage";
+import { Typography } from "@mui/material";
 
 interface FormValues {
   newPassword: string;
@@ -75,7 +76,16 @@ const ResetPasswordPage: React.FC = () => {
           <div className="mb-6 text-center">
             <Link to="/" className="inline-flex items-center gap-2">
               <img src={HeroImg} alt="logo" className="w-15 h-15 me-2 mt-1 mb-3" />
-              <h2 className="text-3xl font-bold text-[#00092a]">{t('userManagement')}</h2>
+              <Typography
+                variant="h2"
+                sx={{
+                  fontWeight: 'bold',
+                  color: '#00092a', 
+                  fontSize: { xs: '23px', sm: '28px', md: '30px' },
+                }}
+              >
+                {t('userManagement')}
+              </Typography>  
             </Link>
           </div>
 
