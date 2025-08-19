@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, TablePagination, IconButton, Typography, Box, TableSortLabel, Button,
@@ -7,8 +7,6 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { getUsers, createUser, updateUser, deleteUser } from '../api/userApi';
-import type { User } from '../api/userApi';
 import { getUserRoles } from '../helpers/authHelpers';
 import { toast } from "react-toastify";
 import { debounce } from 'lodash';
@@ -18,10 +16,14 @@ import { getUserIdFromToken } from '../helpers/authHelpers';
 import BulkUserInsertionDialog from '../components/BulkUserInsertionDialog';
 import EnabledMfaDialog from '../components/EnableMfaDialog';
 import useLanguage from '../hooks/useLanguage';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from '../app/store';
+import { fetchUsersThunk, deleteUserThunk } from '../features/user/usersThunks';
+import { setPage, setRowsPerPage, setSearch, setSort, openForm } from '../features/user/usersSlice';
 
-type AddUserFormData = Omit<User, 'id' | 'isActive'>;
-type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
-
+// type AddUserFormData = Omit<User, 'id' | 'isActive'>;
+// type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
+  
 const getRoleName = (roleId: number) => {
   switch (roleId) {
     case 1: return "Admin";
@@ -50,6 +52,7 @@ interface ConfirmDialogProps {
 }
 
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, onClose, onConfirm, title, message }) => {
+  const {t} = useLanguage();
   return (
     <Dialog
       open={open}
@@ -82,10 +85,10 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, onClose, onConfirm,
 
       <DialogActions sx={{ justifyContent: 'flex-end' }}>
         <Button onClick={onClose} color="primary" variant="outlined">
-          Cancel
+          {t('cancel')}
         </Button>
         <Button onClick={onConfirm} color="error" variant="contained" autoFocus>
-          Delete
+          {t('delete')}
         </Button>
       </DialogActions>
     </Dialog>
@@ -94,18 +97,29 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, onClose, onConfirm,
 
 const UserListPage: React.FC = () => {
   const { t , currentLanguage} = useLanguage();
-  const [users, setUsers] = useState<User[]>([]);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    user: users,
+    totalUsers,
+    loading,
+    page,
+    rowsPerPage,
+    sortColumn,
+    sortDirection,
+    search
+  } = useSelector((state: RootState) => state.users);
+  // const [users, setUsers] = useState<User[]>([]);
+  // const [totalUsers, setTotalUsers] = useState(0);
+  // const [page, setPage] = useState(0);
+  // const [rowsPerPage, setRowsPerPage] = useState(5);
+  // const [loading, setLoading] = useState(true);
+  // const [searchQuery, setSearchQuery] = useState('');
+  // const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   type SortColumn = 'firstname' | 'lastname' | 'roleid';
-  const [sortColumn, setSortColumn] = useState<SortColumn>('firstname');
+  // const [sortColumn, setSortColumn] = useState<SortColumn>('firstname');
 
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null); // For editing
+  // const [isFormOpen, setIsFormOpen] = useState(false);
+  // const [currentUser, setCurrentUser] = useState<User | null>(null); 
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [userToDeleteId, setUserToDeleteId] = useState<number | null>(null);
@@ -117,77 +131,97 @@ const UserListPage: React.FC = () => {
   const isAdmin = roles.includes("Admin");
   const loggedInUserId = getUserIdFromToken();
 
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+  const [searching, setSearching] = useState(false);
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [res] = await Promise.all([
-        getUsers({
-          search: searchQuery,
-          pageNumber: page + 1,
-          pageSize: rowsPerPage,
-          sortColumn,
-          sortDirection,
-        }),
-        delay(800) 
-      ]);
+  // const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  // const fetchUsers = useCallback(async () => {
+  //   setLoading(true);
+  //   try {
+  //     const [res] = await Promise.all([
+  //       getUsers({
+  //         search: search,
+  //         pageNumber: page + 1,
+  //         pageSize: rowsPerPage,
+  //         sortColumn,
+  //         sortDirection,
+  //       }),
+  //       delay(800) 
+  //     ]);
       
-      const { data, totalCount } = res.data;
-      setUsers(data);
-      setTotalUsers(totalCount);
+  //     const { data, totalCount } = res.data;
+  //     setUsers(data);
+  //     setTotalUsers(totalCount);
 
-    } catch (error) {
-      toast.error(t('fetchUsersError'));
-      setUsers([]);
-      setTotalUsers(0);
-      await delay(500);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, rowsPerPage, searchQuery, sortColumn, sortDirection]);
+  //   } catch (error) {
+  //     toast.error(t('fetchUsersError'));
+  //     setUsers([]);
+  //     setTotalUsers(0);
+  //     await delay(500);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [page, rowsPerPage, search, sortColumn, sortDirection]);
 
+
+  // useEffect(() => {
+  //   const success = localStorage.getItem("login_success");
+  //   if (success) {
+  //     toast.success(t('loginSuccess'));
+  //     localStorage.removeItem("login_success");
+  //   }
+  //   const debouncedFetch = debounce(() => {
+  //     fetchUsers();
+  //   }, 300);
+
+  //   debouncedFetch();
+
+  //   return () => {
+  //     debouncedFetch.cancel();
+  //   };
+  // }, [page, rowsPerPage, search, sortColumn, sortDirection, fetchUsers]);
+
+  // useEffect(() => {
+  //   dispatch(fetchUsersThunk({
+  //     search,
+  //     pageNumber: page + 1,
+  //     pageSize: rowsPerPage,
+  //     sortColumn,
+  //     sortDirection
+  //   }));
+  // }, [dispatch, page, rowsPerPage, search, sortColumn, sortDirection]);
+
+  const debouncedFetch = useMemo(
+    () =>
+      debounce((params) => {
+        dispatch(fetchUsersThunk(params)).finally(() => setSearching(false));
+      }, 1000),
+    [dispatch]
+  );
 
   useEffect(() => {
-    const success = localStorage.getItem("login_success");
-    if (success) {
-      toast.success(t('loginSuccess'));
-      localStorage.removeItem("login_success");
-    }
-    const debouncedFetch = debounce(() => {
-      fetchUsers();
-    }, 300);
-
-    debouncedFetch();
-
-    return () => {
-      debouncedFetch.cancel();
-    };
-  }, [page, rowsPerPage, searchQuery, sortColumn, sortDirection, fetchUsers]);
+    setSearching(true);
+    debouncedFetch({
+      search,
+      pageNumber: page + 1,
+      pageSize: rowsPerPage,
+      sortColumn,
+      sortDirection,
+    });
+  }, [search, page, rowsPerPage, sortColumn, sortDirection]);
 
   const handleSortClick = (column: SortColumn) => {
     if (sortColumn === column) {
-      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
+      dispatch(setSort({ column, direction: sortDirection === 'asc' ? 'desc' : 'asc' }));
     } else {
-      setSortColumn(column);
-      setSortDirection('asc');
+      dispatch(setSort({ column, direction: 'asc' }));
     }
-    setPage(0);
+    dispatch(setPage(0));
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPage(0);
-    setSearchQuery(e.target.value);
-  };
-
-  const handleAddUser = () => {
-    setCurrentUser(null); 
-    setIsFormOpen(true);
-  };
-
-  const handleEdit = (user: User) => {
-    setCurrentUser(user);
-    setIsFormOpen(true);
+    dispatch(setPage(0));
+    dispatch(setSearch(e.target.value));
   };
 
   const handleDeleteClick = (userId: number) => {
@@ -198,10 +232,17 @@ const UserListPage: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (userToDeleteId !== null) {
       try {
-        await deleteUser(userToDeleteId);
+        await dispatch(deleteUserThunk(userToDeleteId)).unwrap();
         toast.success(t('deleteUserSuccess'));
-        setPage(0);
-        fetchUsers(); 
+        dispatch(setPage(0));
+        setSearching(true);
+        debouncedFetch({
+          search,
+          pageNumber: page + 1,
+          pageSize: rowsPerPage,
+          sortColumn,
+          sortDirection,
+        });
       } catch (error) {
         toast.error(t('deleteUserError'));
       } finally {
@@ -211,29 +252,13 @@ const UserListPage: React.FC = () => {
     }
   };
 
-  const handleFormSubmit = async (userData: AddUserFormData | UpdateUserFormData) => {
-    try {
-      if ('id' in userData) {
-        await updateUser(userData as UpdateUserFormData);
-        toast.success(t('userUpdated'));
-      } else {
-        await createUser(userData as AddUserFormData);
-        toast.success(t('userAdded'));
-      }
-      setIsFormOpen(false); 
-      fetchUsers();
-    } catch (error) {
-      toast.error(t('checkUserDetails'));
-    }
-  };
-
   const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
+    dispatch(setPage(newPage));
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    dispatch(setRowsPerPage(parseInt(event.target.value, 10)));
+    dispatch(setPage(0));
   };
 
   return (
@@ -285,7 +310,7 @@ const UserListPage: React.FC = () => {
                 component="input"
                 type="text"
                 placeholder={t('searchPlaceholder')}
-                value={searchQuery}
+                value={search}
                 onChange={handleSearchChange}
                 sx={{
                   p: '8px',
@@ -327,7 +352,7 @@ const UserListPage: React.FC = () => {
                     color="primary"
                     variant="contained"
                     startIcon={<AddIcon />}
-                    onClick={handleAddUser}
+                    onClick={() => dispatch(openForm(null))}
                     sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'199px'}}
                   >
                     {t('addUser')}
@@ -341,7 +366,7 @@ const UserListPage: React.FC = () => {
                   {t('bulkAddUser')}
                 </Button>
                 <BulkUserInsertionDialog open={openDialog} onClose={() => setOpenDialog(false)} onSubmit={() => {
-                      fetchUsers();
+                      // fetchUsers();
                   }}/>
             </Box>
           </Box>
@@ -397,7 +422,7 @@ const UserListPage: React.FC = () => {
                       <TableCell>{calculateAge(user.dateofbirth)}</TableCell>
                       {isAdmin && (
                         <TableCell align="center" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 120 }}>
-                          <IconButton onClick={() => handleEdit(user)} color="primary">
+                          <IconButton onClick={() => dispatch(openForm(user))} color="primary">
                             <EditIcon />
                           </IconButton>
                           {user.id !== loggedInUserId && (
@@ -432,12 +457,7 @@ const UserListPage: React.FC = () => {
           />
         </Paper>
 
-      <UserFormDialog
-        open={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        user={currentUser}
-        onSubmit={handleFormSubmit}
-      />
+      <UserFormDialog/>
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
@@ -448,7 +468,7 @@ const UserListPage: React.FC = () => {
         message={t('confirmDeleteMessage')}
       />
 
-      <Loader open={loading} />
+      <Loader open={searching || loading} />
     </Box>
   );
 };

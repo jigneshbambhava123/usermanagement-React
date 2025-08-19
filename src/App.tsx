@@ -22,6 +22,8 @@ import VerifyOtpPage from './pages/VerifyOtpPage';
 import "./i18n"
 import * as locales from '@mui/material/locale';
 import useLanguage from './hooks/useLanguage';
+import { Provider } from 'react-redux';
+import { store } from './app/store';
 
 const getLanguage = (lang: string) => {
   switch (lang) {
@@ -156,7 +158,9 @@ const App: React.FC = () => {
     <Router>
       <ErrorBoundary> 
         <ThemeProvider theme={theme}>
-          <AppRoutes />
+          <Provider store={store}>
+            <AppRoutes />
+          </Provider>
         </ThemeProvider>
       </ErrorBoundary>
     </Router>

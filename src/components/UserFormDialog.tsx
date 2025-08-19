@@ -8,19 +8,35 @@ import * as Yup from 'yup';
 import type { User } from '../api/userApi';
 import { getUserIdFromToken } from '../helpers/authHelpers';
 import useLanguage from '../hooks/useLanguage';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from '../app/store';
+import { closeForm } from '../features/user/usersSlice';
+import { addUserThunk, fetchUsersThunk, updateUserThunk } from '../features/user/usersThunks'; 
+import { toast } from "react-toastify";
 
-type AddUserFormData = Omit<User, 'id' | 'isActive'>;
-type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
+// type AddUserFormData = Omit<User, 'id' | 'isActive'>;
+// type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
 
-interface UserFormDialogProps {
-  open: boolean;
-  onClose: () => void;
-  user: User | null;
-  onSubmit: (userData: AddUserFormData | UpdateUserFormData) => void;
-}
+// interface UserFormDialogProps {
+//   open: boolean;
+//   onClose: () => void;
+//   user: User | null;
+//   onSubmit: (userData: AddUserFormData | UpdateUserFormData) => void;
+// }
 
-const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, onSubmit }) => {
+const UserFormDialog: React.FC = () => {
   const { t } = useLanguage();
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    page,
+    rowsPerPage,
+    sortColumn,
+    sortDirection,
+    search
+  } = useSelector((state:RootState) => state.users);
+
+  const open = useSelector((state:RootState) => state.users.formOpen);
+  const user = useSelector((state:RootState) => state.users.editingUser);
   const isEditMode = Boolean(user);
   const loggedInUserId = getUserIdFromToken();
 
@@ -78,30 +94,45 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
     roleId: Yup.number().oneOf([1, 2], t('roleInvalid')).required(t('roleRequired')),
   });
 
-  const handleSubmit = (values: typeof initialFormikValues) => {
-    if (isEditMode) {
-      if (!user) return;
-      const dataToSubmit: UpdateUserFormData = {
-        id: user.id,
-        firstname: values.firstname,
-        lastname: values.lastname,
-        email: values.email,
-        roleId: values.roleId,
-        phoneNumber: Number(values.phoneNumber),
-        isActive: user.isActive,
-      };
-      onSubmit(dataToSubmit);
-    } else {
-      const dataToSubmit: AddUserFormData = {
-        firstname: values.firstname,
-        lastname: values.lastname,
-        email: values.email,
-        password: values.password,
-        roleId: values.roleId,
-        phoneNumber: Number(values.phoneNumber),
-        dateofbirth: values.dateofbirth,
-      };
-      onSubmit(dataToSubmit);
+  const handleSubmit = async (values: typeof initialFormikValues) => {
+    try {
+      if (isEditMode) {
+        if (!user) return;
+        await dispatch(updateUserThunk({
+          id: user.id,
+          firstname: values.firstname,
+          lastname: values.lastname,
+          email: values.email,
+          phoneNumber: Number(values.phoneNumber),
+          roleId: values.roleId,
+          isActive: user.isActive,
+        })).unwrap();
+        toast.success(t('userUpdated'));
+      } else {
+        await dispatch(addUserThunk({
+          firstname: values.firstname,
+          lastname: values.lastname,
+          email: values.email,
+          password: values.password,
+          phoneNumber: Number(values.phoneNumber),
+          dateofbirth: values.dateofbirth,
+          roleId: values.roleId,
+        })).unwrap();
+        toast.success(t('userAdded'));
+      }
+
+      dispatch(closeForm());
+
+      dispatch(fetchUsersThunk({
+        search,
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+        sortColumn,
+        sortDirection,
+      }));
+
+    } catch (error) {
+      toast.error(t('checkUserDetails'));
     }
   };
 
@@ -111,7 +142,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={() => dispatch(closeForm())}
       aria-labelledby="form-dialog-title"
       maxWidth="sm"
       fullWidth
@@ -295,7 +326,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({ open, onClose, user, on
               <DialogActions  sx={{
                 backgroundColor: 'white'
               }}>
-                <Button onClick={onClose} color="primary" variant="outlined" sx={{fontSize: { xs: '12px'}}}>
+                <Button onClick={() => dispatch(closeForm())} color="primary" variant="outlined" sx={{fontSize: { xs: '12px'}}}>
                   {t('cancel')}
                 </Button>
                 <Button type="submit" variant="contained" color="primary" sx={{fontSize: { xs: '12px'}}}>

@@ -298,7 +298,7 @@ const DashboardPage: React.FC = () => {
                 <InputLabel>{t('chartType')}</InputLabel>
                 <Select
                   value={chartType}
-                  label="Chart Type"
+                  label={t('chartType')}
                   onChange={(e) => setChartType(e.target.value as 'bar' | 'line' | 'area')}
                 >
                   <MenuItem value="bar">{t('barChart')}</MenuItem>
@@ -308,7 +308,7 @@ const DashboardPage: React.FC = () => {
               </FormControl>
               <FormControl size="small">
                 <InputLabel>{t('timePeriod')}</InputLabel>
-                <Select value={days} label="Time Period" onChange={(e) => setDays(Number(e.target.value))}>
+                <Select value={days} label={t('timePeriod')} onChange={(e) => setDays(Number(e.target.value))}>
                   <MenuItem value={10}>{t('last10Days')}</MenuItem>
                   <MenuItem value={30}>{t('last30Days')}</MenuItem>
                   <MenuItem value={60}>{t('last60Days')}</MenuItem>
