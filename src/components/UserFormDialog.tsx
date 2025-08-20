@@ -14,16 +14,6 @@ import { closeForm } from '../features/user/usersSlice';
 import { addUserThunk, fetchUsersThunk, updateUserThunk } from '../features/user/usersThunks'; 
 import { toast } from "react-toastify";
 
-// type AddUserFormData = Omit<User, 'id' | 'isActive'>;
-// type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
-
-// interface UserFormDialogProps {
-//   open: boolean;
-//   onClose: () => void;
-//   user: User | null;
-//   onSubmit: (userData: AddUserFormData | UpdateUserFormData) => void;
-// }
-
 const UserFormDialog: React.FC = () => {
   const { t } = useLanguage();
   const dispatch = useDispatch<AppDispatch>();

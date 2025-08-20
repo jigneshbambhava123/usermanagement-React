@@ -14,6 +14,8 @@ interface UsersState {
   sortDirection: 'asc' | 'desc';
   formOpen: boolean;
   editingUser: User | null;
+  bulkUploadOpen: boolean;
+  mfaDialogOpen: boolean;
 }
 
 const initialState: UsersState = {
@@ -28,6 +30,8 @@ const initialState: UsersState = {
   sortDirection: 'asc',
   formOpen: false,
   editingUser: null,
+  bulkUploadOpen: false,
+  mfaDialogOpen: false,
 };
 
 const usersSlice = createSlice({
@@ -55,6 +59,18 @@ const usersSlice = createSlice({
       state.formOpen = false;
       state.editingUser = null;
     },
+    openBulkUpload(state) {
+      state.bulkUploadOpen = true;
+    },
+    closeBulkUpload(state) {
+      state.bulkUploadOpen = false;
+    },
+    openMfaDialog(state) {
+      state.mfaDialogOpen = true;
+    },
+    closeMfaDialog(state) {
+      state.mfaDialogOpen = false;
+    },  
   },
   extraReducers: (builder) => {
     builder
@@ -74,12 +90,14 @@ const usersSlice = createSlice({
       .addCase(addUserThunk.fulfilled, (state) => {
         state.page = 0; 
       })
-      .addCase(updateUserThunk.fulfilled, () => {})
+      .addCase(updateUserThunk.fulfilled, () => {
+
+      })
       .addCase(deleteUserThunk.fulfilled, (state) => {
         state.page = 0;
       });
   },
 });
 
-export const { setPage, setRowsPerPage, setSearch, setSort, openForm, closeForm } = usersSlice.actions;
+export const { setPage, setRowsPerPage, setSearch, setSort, openForm, closeForm,  openBulkUpload, closeBulkUpload,openMfaDialog, closeMfaDialog} = usersSlice.actions;
 export default usersSlice.reducer;

@@ -173,7 +173,8 @@
   "userProcessComplete": "Benutzerprozess vollständig!",
   "someErrorOccur": "Ein gewisser Fehler tritt auf",
   "roleUnknown": "Unbekannt",
-
+  "chooseFile": "Datei wählen",
+  "noFileChosen": "Keine Datei ausgewählt",
 
   "_comment_EnableMfaDialog": "Dieser Abschnitt dient zur Verwaltung der Multi-Faktor-Authentifizierung",
   "manageMultiFactorAuthentication": "Verwalten Sie Multi-Factor-Authentifizierung",
@@ -183,7 +184,7 @@
   "mfaUpdateSuccessEnabled": "Die Multi-Faktor-Authentifizierung erfolgreich aktiviert.",
   "mfaUpdateSuccessDisabled": "Multi-Faktorauthentifizierung erfolgreich deaktiviert.",
   "mfaUpdateFailed": "Die MFA -Einstellung nicht aktualisiert.",
-
+  "mfaFetchFailed": "Die MFA -Einstellung versäumt.",
 
   "_comment_resourcePage": "Dieser Abschnitt ist für die Ressourcenlistenseite gilt",
   "resourceManagement": "Ressourcenmanagement",

@@ -171,6 +171,8 @@
     "userProcessComplete": "User process complete!",
     "someErrorOccur": "Some error occur",
     "roleUnknown": "Unknown",
+    "chooseFile": "Choose File",
+    "noFileChosen": "No file chosen",
 
     "_comment_EnableMfaDialog": "This section is for Manage Multi-Factor Authentication",
     "manageMultiFactorAuthentication": "Manage Multi-Factor Authentication",
@@ -180,7 +182,7 @@
     "mfaUpdateSuccessEnabled": "Multi-Factor Authentication enabled successfully.",
     "mfaUpdateSuccessDisabled": "Multi-Factor Authentication disabled successfully.",
     "mfaUpdateFailed": "Failed to update MFA setting.",
-
+    "mfaFetchFailed": "Failed to Fetch MFA setting.",
     
     "_comment_resourcePage": "This section is for the Resource List page",
     "resourceManagement": "Resource Management",

@@ -8,12 +8,10 @@ import { toast } from 'react-toastify';
 import type { User } from '../api/userApi';
 import api from '../api/axiosInstance';
 import useLanguage from '../hooks/useLanguage';
- 
-interface BulkUserUploadDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: () => void;
-}
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from '../app/store';
+import { closeBulkUpload } from '../features/user/usersSlice';
+import { fetchUsersThunk } from '../features/user/usersThunks';
 
 const getRoleName = (roleId: number) => {
   switch (roleId) {
@@ -23,8 +21,19 @@ const getRoleName = (roleId: number) => {
   }
 };
  
-const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClose, onSubmit }) => {
+const BulkUserUploadDialog: React.FC = () => {
   const { t } = useLanguage();
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    page,
+    rowsPerPage,
+    sortColumn,
+    sortDirection,
+    search
+  } = useSelector((state:RootState) => state.users);
+
+  const open = useSelector((state: RootState) => state.users.bulkUploadOpen);
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [successUsers, setSuccessUsers] = useState<User[]>([]);
   const [errorUsers, setErrorUsers] = useState<{ user: User; errors: string }[]>([]);
@@ -49,14 +58,19 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
     try {
         const formData = new FormData();
         formData.append('file', selectedFile); 
-    
         const response = await api.post('/User/BulkInsertionUser', formData);
         console.log(response.data);
         setSuccessUsers(response.data.successList);
         setErrorUsers(response.data.errorList);
-        onSubmit(); 
         toast.success(t('userProcessComplete'));
         setActiveTab('success');
+        dispatch(fetchUsersThunk({
+          search,
+          pageNumber: page + 1,
+          pageSize: rowsPerPage,
+          sortColumn,
+          sortDirection,
+        }));
     } catch (error) {
       console.error(error);
       toast.error(t('someErrorOccur'));
@@ -68,7 +82,7 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
     setSuccessUsers([]);
     setErrorUsers([]);
     setActiveTab(null);
-    onClose();
+    dispatch(closeBulkUpload());
   };
  
   return (
@@ -82,9 +96,31 @@ const BulkUserUploadDialog: React.FC<BulkUserUploadDialogProps> = ({ open, onClo
       <DialogContent >
 
         <Box mt={2} mb={2} className="flex flex-col gap-2">
-          <label className="font-bold text-gray-700">{t('uploadExcelFileLabel')}</label>
-          <input className="p-2 border border-gray-300 rounded text-sm" type="file" onChange={handleFileChange} />
+          <label className="font-bold text-gray-700">
+            {t('uploadExcelFileLabel')}
+          </label>
+
+          <input
+            id="fileInput"
+            type="file"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+
+          <Box className="flex items-center gap-3 border border-gray-300 rounded">
+            <label
+              htmlFor="fileInput"
+              className="cursor-pointer px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800"
+            >
+              {t('chooseFile')}
+            </label>
+
+            <span className="text-sm text-gray-600">
+              {selectedFile ? selectedFile.name : t('noFileChosen')}
+            </span>
+          </Box>
         </Box>
+
  
         {(successUsers.length > 0 || errorUsers.length > 0) && (
           <Box mt={2}>

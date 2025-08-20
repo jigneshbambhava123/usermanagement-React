@@ -1,18 +1,36 @@
 import {Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel, Switch, CircularProgress, Box,} from '@mui/material';
-import { useState } from 'react';
-import { updateConfigurationValue } from '../api/configurationApi';
+import { useEffect, useState } from 'react';
+import { getMfaEnable, updateConfigurationValue } from '../api/configurationApi';
 import { toast } from 'react-toastify';
 import useLanguage from '../hooks/useLanguage';
- 
-interface EnabledMfaDialogProps {
-  open: boolean;
-  onClose: () => void;
-}
- 
-const EnabledMfaDialog: React.FC<EnabledMfaDialogProps> = ({ open, onClose }) => {
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from '../app/store';
+import { closeMfaDialog } from '../features/user/usersSlice';
+
+const EnabledMfaDialog: React.FC = () => {
   const { t } = useLanguage();
+  const dispatch = useDispatch<AppDispatch>();
+  const open = useSelector((state: RootState) => state.users.mfaDialogOpen);
   const [isEnabled, setIsEnabled] = useState(false); 
   const [saving, setSaving] = useState(false);
+
+   useEffect(() => {
+    if (open) {
+      const fetchMfaStatus = async () => {
+        try {
+          const response = await getMfaEnable(); 
+          setIsEnabled(response.enableMfa);
+        } catch (error) {
+          toast.error(t("mfaFetchFailed"));
+        } 
+      };
+      fetchMfaStatus();
+    }
+  }, [open]);
+
+  const handleClose = () => {
+    dispatch(closeMfaDialog());
+  };
  
   const handleSave = async () => {
     setSaving(true);
@@ -23,7 +41,7 @@ const EnabledMfaDialog: React.FC<EnabledMfaDialogProps> = ({ open, onClose }) =>
           ? t('mfaUpdateSuccessEnabled')
           : t('mfaUpdateSuccessDisabled')
       );      
-      onClose();
+      handleClose();
     } catch (error) {
       toast.error(t('mfaUpdateFailed'));
     } finally {
@@ -32,7 +50,7 @@ const EnabledMfaDialog: React.FC<EnabledMfaDialogProps> = ({ open, onClose }) =>
   };
  
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
         <DialogTitle
             id="form-dialog-title"
             className="text-xl font-bold text-center text-white"
@@ -62,7 +80,7 @@ const EnabledMfaDialog: React.FC<EnabledMfaDialogProps> = ({ open, onClose }) =>
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={saving}>
+        <Button onClick={handleClose} disabled={saving}>
           {t('cancel')}
         </Button>
         <Button onClick={handleSave} disabled={saving} variant="contained">

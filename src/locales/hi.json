@@ -159,6 +159,7 @@
   "roleRequired": "भूमिका की आवश्यकता है",
   "userAddError": "उपयोगकर्ता जोड़ने में विफल।",
   "userUpdateError": "उपयोगकर्ता को अपडेट करने में विफल।",
+
   "_comment_bulkUserUploadDialog": "यह खंड थोक ऐड उपयोगकर्ता अपलोड संवाद के लिए है",
   "bulkAddUserTitle": "थोक उपयोगकर्ता जोड़ें",
   "uploadExcelFileLabel": "एक्सेल फ़ाइल अपलोड करें:",
@@ -171,6 +172,9 @@
   "userProcessComplete": "उपयोगकर्ता प्रक्रिया पूरी!",
   "someErrorOccur": "कुछ त्रुटि होती है",
   "roleUnknown": "अज्ञात",
+  "chooseFile": "फाइलें चुनें",
+  "noFileChosen": "कोई फ़ाइल चुना नही",
+
   "_comment_EnableMfaDialog": "यह खंड बहु-कारक प्रमाणीकरण का प्रबंधन करने के लिए है",
   "manageMultiFactorAuthentication": "बहु-कारक प्रमाणीकरण प्रबंधित करें",
   "mfaEnabled": "सक्रिय",

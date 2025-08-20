@@ -19,7 +19,7 @@ import useLanguage from '../hooks/useLanguage';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../app/store';
 import { fetchUsersThunk, deleteUserThunk } from '../features/user/usersThunks';
-import { setPage, setRowsPerPage, setSearch, setSort, openForm } from '../features/user/usersSlice';
+import { setPage, setRowsPerPage, setSearch, setSort, openForm, openBulkUpload, openMfaDialog } from '../features/user/usersSlice';
 
 // type AddUserFormData = Omit<User, 'id' | 'isActive'>;
 // type UpdateUserFormData = Omit<User, 'password' | 'dateofbirth'>;
@@ -123,9 +123,6 @@ const UserListPage: React.FC = () => {
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [userToDeleteId, setUserToDeleteId] = useState<number | null>(null);
-
-  const [openDialog, setOpenDialog] = useState(false);
-  const [openMfaDialog, setOpenMfaDialog] = useState(false);
 
   const roles = getUserRoles();
   const isAdmin = roles.includes("Admin");
@@ -235,14 +232,13 @@ const UserListPage: React.FC = () => {
         await dispatch(deleteUserThunk(userToDeleteId)).unwrap();
         toast.success(t('deleteUserSuccess'));
         dispatch(setPage(0));
-        setSearching(true);
-        debouncedFetch({
+        dispatch(fetchUsersThunk({
           search,
           pageNumber: page + 1,
           pageSize: rowsPerPage,
           sortColumn,
           sortDirection,
-        });
+        }));
       } catch (error) {
         toast.error(t('deleteUserError'));
       } finally {
@@ -328,13 +324,13 @@ const UserListPage: React.FC = () => {
                 <Button
                     color="primary"
                     variant="contained"
-                    onClick={() => setOpenMfaDialog(true)}
+                    onClick={() => dispatch(openMfaDialog())}
                     sx={{ height: '42px', width: { xs: '100%', sm: 'auto' },whiteSpace: 'nowrap', overflow: 'hidden',minWidth:'190px'}}
                   >
                   {t('manageMfa')}
                 </Button>
               )}
-              <EnabledMfaDialog open={openMfaDialog} onClose={() => setOpenMfaDialog(false)} />
+              <EnabledMfaDialog />
             </Box>
 
             <Box
@@ -360,14 +356,12 @@ const UserListPage: React.FC = () => {
                   
                 )}
 
-                <Button  color="primary" variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)} style={{ height: '42px',
+                <Button  color="primary" variant="contained" startIcon={<AddIcon />} onClick={() => dispatch(openBulkUpload())} style={{ height: '42px',
                   minWidth:  currentLanguage === 'bn'? '230px' : currentLanguage === 'de'? '225px': currentLanguage === 'hi'? '181px' : '180px'
                 }}>
                   {t('bulkAddUser')}
                 </Button>
-                <BulkUserInsertionDialog open={openDialog} onClose={() => setOpenDialog(false)} onSubmit={() => {
-                      // fetchUsers();
-                  }}/>
+                <BulkUserInsertionDialog/>
             </Box>
           </Box>
         </Box>
